@@ -557,6 +557,21 @@ CREATE TABLE `user_role` (
 -- Dumping data for table `user_role`
 --
 
+DROP TABLE IF EXISTS `ai_device`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `ai_device` (
+                             `id` int NOT NULL AUTO_INCREMENT,
+                             `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+                             `url` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+                             `ip` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
+                             `createTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+                             `updateTime` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+                             `port` int DEFAULT NULL,
+                             PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 LOCK TABLES `user_role` WRITE;
 /*!40000 ALTER TABLE `user_role` DISABLE KEYS */;
 INSERT INTO `user_role` VALUES (1,'admin','0','2021-04-13 14:14:57','2021-04-13 14:14:57');
