@@ -56,7 +56,7 @@ export default {
     console.log(123,this.$cookies.get("session"))
     if (this.$route.path.startsWith("/channelList")) {
       this.activeIndex = "/deviceList"
-    }else if(this.$route.path.startsWith("/ai/devicepreview") || this.$route.path.startsWith("/ai/devicemanagement") || this.$route.path.startsWith("/user/usermanagement")){
+    }else if(this.$route.path.startsWith("/ai/devicepreview") || this.$route.path.startsWith("/ai/devicemanagement") || this.$route.path.startsWith("/user/usermanagement") || this.$route.path.startsWith("/ai/aimanagement")){
       this.activeIndex = "/ai/devicepreview"
     }
   },
