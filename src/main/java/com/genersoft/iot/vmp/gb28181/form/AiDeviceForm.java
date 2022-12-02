@@ -17,6 +17,12 @@ public class AiDeviceForm {
     @Schema(description = "地址")
     private String url;
 
+    @Schema(description = "IP")
+    private String  ip;
+
+    @Schema(description = "端口")
+    private int port;
+
     public Integer getId() {
         return id;
     }
@@ -39,5 +45,21 @@ public class AiDeviceForm {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }
