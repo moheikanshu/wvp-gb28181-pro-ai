@@ -294,6 +294,7 @@ export default {
         if(data.url){
           let url = data.url
           url = url.replace(/0.0.0.0/, ip)
+          console.log('rtmp替换后地址', url)
           that.setPlayUrl(url, that.playerIdx)
           let personTimer = setInterval(() => {
             that.getPersons(ip, port)
