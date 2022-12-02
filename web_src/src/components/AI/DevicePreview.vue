@@ -273,9 +273,9 @@ export default {
       let that = this;
       const { ip, port } = this.checkedNode
       this.listVisble = false
-      let params = { name: [1,rtspUrl] }
-      params = JSON.stringify(params)
-      console.log(333,params)
+      // let params = { name: [1,rtspUrl] }
+      // params = JSON.stringify(params)
+      // console.log(333,params)
       this.$axios({
         method: 'post',
         // url: `http://192.168.200.8:1936/users?name=[1,${rtspUrl}]`,
@@ -288,8 +288,10 @@ export default {
         },
       }).then(function (res) {
         console.log('请求成功',res.data.Url,res)
-        if(res.data.Url){
-          let url = res.data.Url
+        const data = JSON.parse(res.data)
+        console.log('json转换', data)
+        if(data.Url){
+          let url = data.url
           url = url.replace(/0.0.0.0/, ip)
           that.setPlayUrl(url, that.playerIdx)
           let personTimer = setInterval(() => {
