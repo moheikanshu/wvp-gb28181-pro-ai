@@ -283,7 +283,9 @@ export default {
       }).then(function (res) {
         console.log('请求成功',res.data.Url,res)
         if(res.data.Url){
-          that.setPlayUrl(res.data.Url, that.playerIdx)
+          let url = res.data.Url
+          url = url.replace(/0.0.0.0/, ip)
+          that.setPlayUrl(url, that.playerIdx)
           let personTimer = setInterval(() => {
             that.getPersons(ip, port)
           }, 2000)
