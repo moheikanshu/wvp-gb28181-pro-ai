@@ -290,7 +290,8 @@ export default {
         console.log('请求成功',res.data.Url,res)
         const data = JSON.parse(res.data)
         console.log('json转换', data)
-        if(data.Url){
+        console.log('rtmp地址', data.url)
+        if(data.url){
           let url = data.url
           url = url.replace(/0.0.0.0/, ip)
           that.setPlayUrl(url, that.playerIdx)
