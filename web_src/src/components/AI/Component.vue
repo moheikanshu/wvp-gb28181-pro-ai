@@ -7,6 +7,7 @@
           <el-menu-item index="/ai/devicepreview">设备预览</el-menu-item>
           <el-menu-item index="/ai/devicemanagement">设备管理</el-menu-item>
           <el-menu-item index="/ai/streamProxyList">拉流代理</el-menu-item>
+          <el-menu-item index="/ai/aimanagement">AI管理</el-menu-item>
         </el-submenu>
         <el-submenu index="2">
           <template slot="title"><i class="el-icon-user-solid"></i>用户</template>

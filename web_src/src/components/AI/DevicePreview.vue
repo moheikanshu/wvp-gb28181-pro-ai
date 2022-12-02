@@ -3,9 +3,9 @@
     <el-container v-loading="loading" style="height: 91vh;" element-loading-text="拼命加载中">
       <el-aside width="300px" style="background-color: #ffffff">
         <DeviceTree :clickEvent="clickEvent" :contextMenuEvent="contextMenuEvent"></DeviceTree>
-        <div class="button-box">
+        <!-- <div class="button-box">
           <el-button class="pezhi-button" type="primary" @click="showVisble = true">配置播放地址</el-button>
-        </div>
+        </div> -->
       </el-aside>
       <el-container>
         <el-header height="5vh" style="text-align: left;font-size: 17px;line-height:5vh">
@@ -15,13 +15,21 @@
           <i class="el-icon-s-grid btn" :class="{active:spilt==9}" @click="spilt=9"/>
         </el-header>
         <el-main style="padding: 0;">
-          <div style="width: 99%;height: 85vh;display: flex;flex-wrap: wrap;background-color: #000;">
-            <div v-for="i in spilt" :key="i" class="play-box"
-                 :style="liveStyle" :class="{redborder:playerIdx == (i-1)}"
-                 @click="playerIdx = (i-1)">
-              <div v-if="!videoUrl[i-1]" style="color: #ffffff;font-size: 30px;font-weight: bold;">{{ i }}</div>
-              <player ref="player" v-else :videoUrl="videoUrl[i-1]" fluent autoplay @screenshot="shot"
-                      @destroy="destroy"/>
+          <div class="flex" style="width: 99%;height: 85vh;background-color: #000;">
+            <div class="flex-item ht100 flex" style="flex-wrap: wrap;">
+              <div v-for="i in spilt" :key="i" class="play-box"
+                   :style="liveStyle" :class="{redborder:playerIdx == (i-1)}"
+                   @click="playerIdx = (i-1)">
+                <div v-if="!videoUrl[i-1]" style="color: #ffffff;font-size: 30px;font-weight: bold;">{{ i }}</div>
+                <video class="video" :src="videoUrl[i-1]" autoplay controls playsinline v-else></video>
+                <!-- <player ref="player" v-else :videoUrl="videoUrl[i-1]" fluent autoplay @screenshot="shot" @destroy="destroy"/> -->
+              </div>
+            </div>
+            <div class="video-text ht100" v-if="queryData.length">
+              <div class="item" v-for="(item, index) in queryData" :key="index">
+                <p class="ptit">{{item.ip}}:{{item.port}}</p>
+                <p class="ptxt">{{item.data}}</p>
+              </div>
             </div>
           </div>
           <el-dialog title="配置播放地址" :visible.sync="showVisble">
@@ -30,6 +38,17 @@
           		<!-- 确定 -->
           		<!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
           		<el-button type="primary" @click="saveUrl">保存</el-button>
+          	</span>
+          </el-dialog>
+          <el-dialog title="列表" :visible.sync="listVisble" :close-on-click-modal="false" width="400px">
+          	<div class="tree-box" v-if="listVisble">
+              <el-tree class="list-tree" ref="gdTree" v-loading="deviceLoading" :props="defaultProps" :data="deviceList" show-checkbox :check-on-click-node="true" :default-expand-all="true" node-key="id" @check="handleNodeClick">
+              </el-tree>
+            </div>
+          	<span slot="footer">
+          		<!-- 确定 -->
+          		<!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
+          		<el-button type="primary" @click="urlSubmit">确定</el-button>
           	</span>
           </el-dialog>
         </el-main>
@@ -63,6 +82,34 @@ export default {
       showVisble: false,
       inputUrl: '',
       itemDatas: {},
+      listVisble: false, //显示设备列表弹窗
+      getdata: '',
+      treeList: [
+        {
+          children: null,
+          id: 1,
+          label: '测试1'
+        },
+        {
+          children: null,
+          id: 2,
+          label: '测试2'
+        },
+        {
+          children: null,
+          id: 3,
+          label: '测试3'
+        },
+      ],
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      },
+      deviceList: [],
+      deviceLoading: false,
+      checkedNode: {},
+      personTimer: [],
+      queryData: [],
     };
   },
   mounted() {
@@ -93,6 +140,11 @@ export default {
     }
   },
   watch: {
+    listVisble(val){
+      if(!val){
+        this.checkedNode = {}
+      }
+    },
     spilt(newValue) {
       console.log("切换画幅;" + newValue)
       let that = this
@@ -115,8 +167,19 @@ export default {
   },
   destroyed() {
     clearTimeout(this.updateLooper);
+    if(this.personTimer.length){
+      this.personTimer.forEach((v) => {
+        clearInterval(v)
+      })
+      this.personTimer = []
+    }
   },
   methods: {
+    handleNodeClick(data){
+      const { id } = data
+      this.checkedNode = data
+      this.$refs.gdTree.setCheckedKeys([id])
+    },
     saveUrl(){
       if(!this.inputUrl){
         return this.$message.error('请输入地址')
@@ -162,7 +225,10 @@ export default {
         url: '/api/play/start/' + deviceId + '/' + channelId
       }).then(function (res) {
         if (res.data.code === 0 && res.data.data) {
-          that.getUser(JSON.stringify(res.data.data.rtsp))
+          that.listVisble = true
+          that.getDeviceList()
+          that.getdata = res.data.data.rtsp
+          // that.getUser(JSON.stringify(res.data.data.rtsp))
           // let videoUrl;
           // if (location.protocol === "https:") {
           //   videoUrl = res.data.data.wss_flv;
@@ -171,7 +237,7 @@ export default {
           // }
           // console.log(111,videoUrl)
           // itemData.playUrl = videoUrl;
-          // that.setPlayUrl(videoUrl, idxTmp);
+          // that.setPlayUrl(videoUrl, idxTmp);deviceList
         } else {
           that.$message.error(res.data.msg);
         }
@@ -180,22 +246,79 @@ export default {
         that.loading = false
       });
     },
+    getDeviceList(){
+      this.deviceLoading = true
+      this.$axios({
+        method: 'get',
+        url: `/api/ai/device/all`,
+      }).then( (res)=> {
+        const { code, data, msg } = res.data
+        if (code === 0) {
+          this.deviceList = data;
+        }else{
+          this.$message.error(msg)
+        }
+        this.deviceLoading = false;
+      }).catch( (error)=> {
+        console.error(error);
+        this.deviceLoading = false;
+      });
+    },
+    urlSubmit(){
+      this.loading = true
+      this.getUser(JSON.stringify(this.getdata))
+      this.listVisble = false
+    },
     getUser(rtspUrl){
       let that = this;
+      const { ip, port } = this.checkedNode
+      this.listVisble = false
       this.$axios({
         method: 'post',
         // url: `http://192.168.200.8:1936/users?name=[1,${rtspUrl}]`,
-        url: `${location.protocol}//192.168.200.8:1936/users?name=[1,${rtspUrl}]`,
+        url: `${location.protocol}//${ip}:${port}/users?name=[1,${rtspUrl}]`,
         headers: {
           'Content-Type': 'application/json'
         },
       }).then(function (res) {
-        console.log('请求成功',res)
+        console.log('请求成功',res.data.Url,res)
+        if(res.data.Url){
+          that.setPlayUrl(res.data.Url, that.playerIdx)
+          let personTimer = setInterval(() => {
+            that.getPersons(ip, port)
+          }, 2000)
+          that.$set(that.personTimer, that.playerIdx, personTimer)
+        }
       }).catch(function (e) {
         console.log('请求失败',e)
+        // that.setPlayUrl('rtmp://175.178.213.69:1935/rtp/34020000002000000013_34020000002000000013', that.playerIdx)
+        that.loading = false
       }).finally(() => {
         that.loading = false
       });
+    },
+    getPersons(ip, port){
+      let that = this
+      that.$axios({
+        method: 'post',
+        // url: `http://192.168.200.8:1936/users?name=[1,${rtspUrl}]`,
+        url: `${location.protocol}//${ip}:${port}/persons`,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      }).then(function (res) {
+        console.log('请求成功',res.data.Url,res)
+        if(res.data){
+          let item = {
+            ip: ip,
+            port: port,
+            data: data
+          }
+          that.queryData = that.queryData.concat(item)
+        }
+      }).catch(function (e) {
+        console.log('请求失败',e)
+      })
     },
     setPlayUrl(url, idx) {
       this.$set(this.videoUrl, idx, url)
@@ -363,5 +486,47 @@ export default {
 }
 .el-aside{
   position: relative;
+}
+.video{
+  width: 100%;
+  height: 100%;
+}
+.list-tree /deep/ .el-tree-node__label{
+  font-size: 16px;
+}
+.tree-box{
+  max-height: 400px;
+  overflow: auto;
+}
+.flex {
+  display: flex;
+}
+.flex-item{
+	flex: 1;
+}
+.video-text{
+  width: 250px;
+  color: #fff;
+  height: 100%;
+  overflow: auto;
+  font-size: 14px;
+  text-align: left;
+}
+.play-boxs{
+  width: 100%;
+  height: 100%;
+}
+.video-box{
+  height: 100%;
+}
+.video-text .item{
+  padding: 0 10px;
+  word-break: break-all;
+}
+.video-text .item + .item{
+  border-top: 1px solid #fff;
+}
+.ht100{
+  height: 100%;
 }
 </style>

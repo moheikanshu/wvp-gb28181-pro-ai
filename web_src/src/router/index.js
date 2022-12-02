@@ -137,6 +137,11 @@ export default new VueRouter({
               name: 'streamProxyList',
               component: () => import('@/components/AI/StreamProxyList'),
             },
+            {
+              path: 'aimanagement',
+              name: 'aimanagement',
+              component: () => import('@/components/AI/AiManagement'),
+            },
           ]
         },
         {
