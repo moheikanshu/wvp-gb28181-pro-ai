@@ -266,17 +266,23 @@ export default {
     },
     urlSubmit(){
       this.loading = true
-      this.getUser(JSON.stringify(this.getdata))
+      this.getUser(this.getdata)
       this.listVisble = false
     },
     getUser(rtspUrl){
       let that = this;
       const { ip, port } = this.checkedNode
       this.listVisble = false
+      let params = { name: [1,rtspUrl] }
+      params = JSON.stringify(params)
+      console.log(333,params)
       this.$axios({
         method: 'post',
         // url: `http://192.168.200.8:1936/users?name=[1,${rtspUrl}]`,
-        url: `${location.protocol}//${ip}:${port}/users?name=[1,${rtspUrl}]`,
+        url: `${location.protocol}//${ip}:${port}/users`,
+        data: {
+          name: [1,rtspUrl]
+        },
         headers: {
           'Content-Type': 'application/json'
         },
