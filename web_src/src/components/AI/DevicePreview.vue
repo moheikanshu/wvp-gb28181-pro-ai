@@ -21,7 +21,8 @@
                    :style="liveStyle" :class="{redborder:playerIdx == (i-1)}"
                    @click="playerIdx = (i-1)">
                 <div v-if="!videoUrl[i-1]" style="color: #ffffff;font-size: 30px;font-weight: bold;">{{ i }}</div>
-                <video class="video" :src="videoUrl[i-1]" autoplay controls playsinline v-else></video>
+                <video class="video" id="video" controls autoplay v-else></video>
+                <!-- <video class="video" :src="videoUrl[i-1]" autoplay controls playsinline v-else></video> -->
                 <!-- <player ref="player" v-else :videoUrl="videoUrl[i-1]" fluent autoplay @screenshot="shot" @destroy="destroy"/> -->
               </div>
             </div>
@@ -110,10 +111,17 @@ export default {
       checkedNode: {},
       personTimer: [],
       queryData: [],
+      webRtcServer: [],
     };
   },
   mounted() {
 
+  },
+  beforeDestroy(){
+    this.webRtcServer.forEach((v) => {
+      v.disconnect()
+    })
+    this.webRtcServer = []
   },
   created() {
     this.checkPlayByParam()
@@ -303,7 +311,7 @@ export default {
         }
       }).catch(function (e) {
         console.log('请求失败',e)
-        // that.setPlayUrl('rtmp://175.178.213.69:1935/rtp/34020000002000000013_34020000002000000013', that.playerIdx)
+        // that.setPlayUrl('rtsp://192.168.2.14/media/flv/video1', that.playerIdx)
         that.loading = false
       }).finally(() => {
         that.loading = false
@@ -334,6 +342,13 @@ export default {
     },
     setPlayUrl(url, idx) {
       this.$set(this.videoUrl, idx, url)
+      this.$nextTick(() => {
+        let item = new WebRtcStreamer('video', location.protocol + '//127.0.0.1:8000')
+        this.$set(this.webRtcServer, idx, item)
+        this.webRtcServer[idx].connect(url)
+      })
+
+      // this.$set(this.videoUrl, idx, url)
       let _this = this
       setTimeout(() => {
         window.localStorage.setItem('videoUrl', JSON.stringify(_this.videoUrl))
