@@ -21,7 +21,8 @@
                    :style="liveStyle" :class="{redborder:playerIdx == (i-1)}"
                    @click="playerIdx = (i-1)">
                 <div v-if="!videoUrl[i-1]" style="color: #ffffff;font-size: 30px;font-weight: bold;">{{ i }}</div>
-                <video class="video" :src="videoUrl[i-1]" autoplay controls playsinline v-else></video>
+                <video class="video" id="video" controls autoplay v-else></video>
+                <!-- <video class="video" :src="videoUrl[i-1]" autoplay controls playsinline v-else></video> -->
                 <!-- <player ref="player" v-else :videoUrl="videoUrl[i-1]" fluent autoplay @screenshot="shot" @destroy="destroy"/> -->
               </div>
             </div>
@@ -110,10 +111,17 @@ export default {
       checkedNode: {},
       personTimer: [],
       queryData: [],
+      webRtcServer: [],
     };
   },
   mounted() {
 
+  },
+  beforeDestroy(){
+    this.webRtcServer.forEach((v) => {
+      v.disconnect()
+    })
+    this.webRtcServer = []
   },
   created() {
     this.checkPlayByParam()
@@ -266,24 +274,36 @@ export default {
     },
     urlSubmit(){
       this.loading = true
-      this.getUser(JSON.stringify(this.getdata))
+      this.getUser(this.getdata)
       this.listVisble = false
     },
     getUser(rtspUrl){
       let that = this;
       const { ip, port } = this.checkedNode
       this.listVisble = false
+      // let params = { name: [1,rtspUrl] }
+      // params = JSON.stringify(params)
+      // console.log(333,params)
       this.$axios({
         method: 'post',
         // url: `http://192.168.200.8:1936/users?name=[1,${rtspUrl}]`,
-        url: `${location.protocol}//${ip}:${port}/users?name=[1,${rtspUrl}]`,
+        url: `${location.protocol}//${ip}:${port}/users`,
+        data: {
+          name: [1,rtspUrl]
+        },
         headers: {
           'Content-Type': 'application/json'
         },
       }).then(function (res) {
         console.log('请求成功',res.data.Url,res)
-        if(res.data.Url){
-          that.setPlayUrl(res.data.Url, that.playerIdx)
+        const data = JSON.parse(res.data)
+        console.log('json转换', data)
+        console.log('rtmp地址', data.url)
+        if(data.url){
+          let url = data.url
+          url = url.replace(/0.0.0.0/, ip)
+          console.log('rtmp替换后地址', url)
+          that.setPlayUrl(url, that.playerIdx)
           let personTimer = setInterval(() => {
             that.getPersons(ip, port)
           }, 2000)
@@ -291,7 +311,7 @@ export default {
         }
       }).catch(function (e) {
         console.log('请求失败',e)
-        // that.setPlayUrl('rtmp://175.178.213.69:1935/rtp/34020000002000000013_34020000002000000013', that.playerIdx)
+        // that.setPlayUrl('rtsp://192.168.2.14/media/flv/video1', that.playerIdx)
         that.loading = false
       }).finally(() => {
         that.loading = false
@@ -322,6 +342,13 @@ export default {
     },
     setPlayUrl(url, idx) {
       this.$set(this.videoUrl, idx, url)
+      this.$nextTick(() => {
+        let item = new WebRtcStreamer('video', location.protocol + '//127.0.0.1:8000')
+        this.$set(this.webRtcServer, idx, item)
+        this.webRtcServer[idx].connect(url)
+      })
+
+      // this.$set(this.videoUrl, idx, url)
       let _this = this
       setTimeout(() => {
         window.localStorage.setItem('videoUrl', JSON.stringify(_this.videoUrl))
