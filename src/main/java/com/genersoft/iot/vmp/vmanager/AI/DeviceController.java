@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * @author: 丘丽娟
+ * @author: 
  * @date: 2022/11/30 14:50
  */
 @Tag(name  = "AI设备管理")

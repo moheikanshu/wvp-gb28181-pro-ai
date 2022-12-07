@@ -3,7 +3,7 @@ package com.genersoft.iot.vmp.gb28181.form;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * @author: 丘丽娟
+ * @author: 
  * @date: 2022/11/30 15:56
  */
 public class AiDeviceForm {

@@ -3,7 +3,7 @@ package com.genersoft.iot.vmp.gb28181.bean;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 /**
- * @author: 丘丽娟
+ * @author: 
  * @date: 2022/11/30 15:18
  */
 @Schema(description = "AI设备")

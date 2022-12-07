@@ -8,7 +8,7 @@ import com.github.pagehelper.PageInfo;
 import java.util.List;
 
 /**
- * @author: 丘丽娟
+ * @author: 
  * @date: 2022/11/30 15:21
  */
 public interface IAiDeviceService {
