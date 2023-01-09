@@ -285,24 +285,24 @@ export default {
       // params = JSON.stringify(params)
       // console.log(333,params)
       this.$axios({
-        method: 'post',
+        method: 'get',
         // url: `http://192.168.200.8:1936/users?name=[1,${rtspUrl}]`,
-        url: `${location.protocol}//${ip}:${port}/users`,
-        data: {
-          name: [1,rtspUrl]
-        },
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        // url: `${location.protocol}//${ip}:${port}/users`,
+        url: `${location.protocol}//${ip}:${port}/push?url=${rtspUrl}`,
+        // data: {
+        //   name: [1,rtspUrl]
+        // },
+        // headers: {
+        //   'Content-Type': 'application/json'
+        // },
       }).then(function (res) {
-        console.log('请求成功',res.data.Url,res)
-        const data = JSON.parse(res.data)
-        console.log('json转换', data)
-        console.log('rtmp地址', data.url)
-        if(data.url){
-          let url = data.url
-          url = url.replace(/0.0.0.0/, ip)
-          console.log('rtmp替换后地址', url)
+        console.log('请求成功',res)
+        // const data = JSON.parse(res.data)
+        const { code, msg, data} = res.data
+        if(code == 200 || code == 0){
+          let url = data
+          url = url.replace(/localhost/, ip)
+          console.log('替换后地址', url)
           that.setPlayUrl(url, that.playerIdx)
           let personTimer = setInterval(() => {
             that.getPersons(ip, port)
