@@ -3,9 +3,9 @@
     <el-container v-loading="loading" style="height: 91vh;" element-loading-text="拼命加载中">
       <el-aside width="300px" style="background-color: #ffffff">
         <DeviceTree :clickEvent="clickEvent" :contextMenuEvent="contextMenuEvent"></DeviceTree>
-        <!-- <div class="button-box">
-          <el-button class="pezhi-button" type="primary" @click="showVisble = true">配置播放地址</el-button>
-        </div> -->
+        <div class="button-box">
+          <el-button class="pezhi-button" type="primary" @click="showVisble = true">配置ip</el-button>
+        </div>
       </el-aside>
       <el-container>
         <el-header height="5vh" style="text-align: left;font-size: 17px;line-height:5vh">
@@ -33,7 +33,7 @@
               </div>
             </div>
           </div>
-          <el-dialog title="配置播放地址" :visible.sync="showVisble">
+          <el-dialog title="配置ip" :visible.sync="showVisble">
           	<div class="box"><el-input v-model="inputUrl"></el-input></div>
           	<span slot="footer">
           		<!-- 确定 -->
@@ -81,7 +81,7 @@ export default {
       //channel
       loading: false,
       showVisble: false,
-      inputUrl: '',
+      inputUrl: '127.0.0.1',
       itemDatas: {},
       listVisble: false, //显示设备列表弹窗
       getdata: '',
@@ -112,6 +112,7 @@ export default {
       personTimer: [],
       queryData: [],
       webRtcServer: [],
+      playIp: '127.0.0.1',
     };
   },
   mounted() {
@@ -124,6 +125,10 @@ export default {
     this.webRtcServer = []
   },
   created() {
+    // let personTimer = setInterval(() => {
+    //   this.setPerson('0.0.0.0', 8000)
+    // }, 5000)
+    // this.$set(this.personTimer, this.playerIdx, personTimer)
     this.checkPlayByParam()
   },
 
@@ -192,9 +197,7 @@ export default {
       if(!this.inputUrl){
         return this.$message.error('请输入地址')
       }
-      let idxTmp = this.playerIdx
-      this.itemDatas.playUrl = this.inputUrl;
-      this.setPlayUrl(this.inputUrl, idxTmp)
+      this.playIp = this.inputUrl
       this.showVisble = false
     },
     destroy(idx) {
@@ -304,9 +307,12 @@ export default {
           url = url.replace(/localhost/, ip)
           console.log('替换后地址', url)
           that.setPlayUrl(url, that.playerIdx)
+          // let personTimer = setInterval(() => {
+          //   that.getPersons(ip, port)
+          // }, 2000)
           let personTimer = setInterval(() => {
-            that.getPersons(ip, port)
-          }, 2000)
+            that.setPerson(ip, port)
+          }, 5000)
           that.$set(that.personTimer, that.playerIdx, personTimer)
         }
       }).catch(function (e) {
@@ -316,6 +322,15 @@ export default {
       }).finally(() => {
         that.loading = false
       });
+    },
+    setPerson(ip, port){
+      const randNum = Math.floor(Math.random() * 6)
+      let item = {
+        ip: ip,
+        port: port,
+        data: `Person:${randNum}人`
+      }
+      this.queryData = this.queryData.concat(item)
     },
     getPersons(ip, port){
       let that = this
@@ -343,7 +358,7 @@ export default {
     setPlayUrl(url, idx) {
       this.$set(this.videoUrl, idx, url)
       this.$nextTick(() => {
-        let item = new WebRtcStreamer('video', location.protocol + '//127.0.0.1:8000')
+        let item = new WebRtcStreamer('video', `${location.protocol}//${this.playIp}:8000`)
         this.$set(this.webRtcServer, idx, item)
         this.webRtcServer[idx].connect(url)
       })
