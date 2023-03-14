@@ -33,14 +33,14 @@ public class AiDeviceServiceImpl implements IAiDeviceService {
     }
 
     @Override
-    public List<AiDevice> getAll() {
-        return aiDeviceMapper.list();
+    public List<AiDevice> getAll(String  deviceId) {
+        return aiDeviceMapper.list(deviceId);
     }
 
     @Override
     public PageInfo<AiDevice> list(int page, int count) {
         PageHelper.startPage(page, count);
-        List<AiDevice> devices = aiDeviceMapper.list();
+        List<AiDevice> devices = aiDeviceMapper.list(null);
         return new PageInfo<>(devices);
     }
 

@@ -50,9 +50,9 @@ public class DeviceController {
 
     @GetMapping("/all")
     @Operation(summary = "查询所有数据")
-    public List<AiDevice> all(){
+    public List<AiDevice> all(@RequestParam(required = false) String  deviceId){
         // 获取当前登录用户id
-        return aiDeviceService.getAll();
+        return aiDeviceService.getAll(deviceId);
     }
 
     @GetMapping("/list")

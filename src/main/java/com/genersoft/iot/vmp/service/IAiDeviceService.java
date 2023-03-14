@@ -15,7 +15,7 @@ public interface IAiDeviceService {
 
     void save(AiDevice aiDevice);
 
-    List<AiDevice> getAll();
+    List<AiDevice> getAll(String  deviceId);
 
     PageInfo<AiDevice> list(int page, int count);
 

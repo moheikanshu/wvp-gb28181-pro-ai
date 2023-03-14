@@ -35,6 +35,11 @@ public interface AiDeviceMapper {
             " </script>"})
     int update(AiDevice aiDevice);
 
-    @Select("SELECT * FROM ai_device order by id desc")
-    List<AiDevice> list();
+    @Select(value = {" <script>" +
+            " SELECT * FROM ai_device " +
+            " WHERE 1=1 " +
+            " <if test=\"deviceId != null\" >  AND id in(select algorithmId from device_algorithm where deviceId = '${deviceId}') </if>" +
+            " ORDER BY id desc " +
+            " </script>"})
+    List<AiDevice> list(String deviceId);
 }
