@@ -76,22 +76,11 @@
                      style="color: #f56c6c">删除
           </el-button>
           <el-divider direction="vertical"></el-divider>
-          <el-button size="medium" icon="el-icon-s-operation" type="text" @click="getAiList">
+          <el-button size="medium" icon="el-icon-s-operation" type="text" @click="getAiList(scope.row)">
             算法
           </el-button>
           <el-divider direction="vertical"></el-divider>
-          <el-switch v-model="value0" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
-          <el-dialog title="列表" :visible.sync="aiVisble" :close-on-click-modal="false" width="400px">
-            <div class="tree-box" v-if="aiVisble">
-              <el-tree class="list-tree" ref="gdTree" v-loading="aiLoading" :data="aiList" show-checkbox :check-on-click-node="true" :default-expand-all="true" node-key="id" @check="handleNodeClick">
-              </el-tree>
-            </div>
-            <span slot="footer">
-          		<!-- 确定 -->
-              <!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
-          		<el-button type="primary" @click="aiVisble = false">确定</el-button>
-          	</span>
-          </el-dialog>
+          <el-switch v-model="scope.row.algorithm" :active-value="1" :inactive-value="0" @change="switchChange(scope.row)" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
         </template>
       </el-table-column>
     </el-table>
@@ -105,6 +94,17 @@
       layout="total, sizes, prev, pager, next"
       :total="total">
     </el-pagination>
+    <el-dialog title="列表" :visible.sync="aiVisble" :close-on-click-modal="false" append-to-body width="400px">
+      <div class="tree-box" v-if="aiVisble">
+        <el-tree class="list-tree" ref="gdTree" v-loading="aiLoading" :props="defaultProps" :data="aiList" show-checkbox :check-on-click-node="true" :default-expand-all="true" node-key="id" @check="handleNodeClick">
+        </el-tree>
+      </div>
+      <span slot="footer">
+    		<!-- 确定 -->
+        <!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
+    		<el-button type="primary" @click="saveAlgorithm">确定</el-button>
+    	</span>
+    </el-dialog>
     <deviceEdit ref="deviceEdit"></deviceEdit>
     <syncChannelProgress ref="syncChannelProgress"></syncChannelProgress>
   </div>
@@ -138,7 +138,21 @@ export default {
       count: 15,
       total: 0,
       getDeviceListLoading: false,
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      },
+      checkLiast: [],
+      curRow: {},
     };
+  },
+  watch: {
+    aiVisble(val){
+      if(!val){
+        this.curRow = {}
+        this.checkLiast = []
+      }
+    }
   },
   computed: {
     getcurrentDeviceChannels: function () {
@@ -163,6 +177,50 @@ export default {
     clearTimeout(this.updateLooper);
   },
   methods: {
+    switchChange(row){
+      const { deviceId, algorithm } = row
+      this.$axios({
+        method: 'post',
+        url: `/api/device/query/switchAlgorithm/`,
+        data: {
+          deviceId,
+          algorithm,
+        }
+      }).then((res) => {
+        if (res.data.code === 0) {
+          this.$message.success(res.data.msg)
+        }else{
+          this.$message.error(res.data.msg)
+        }
+        this.initData()
+      }).catch((error) => {
+        console.error(error)
+      });
+    },
+    saveAlgorithm(){
+      this.$axios({
+        method: 'post',
+        url: `/api/device/query/algorithmSetting/`,
+        data: {
+          deviceId: this.curRow.deviceId,
+          algorithmIds: this.checkLiast
+        }
+      }).then((res) => {
+        if (res.data.code === 0) {
+          this.$message.success(res.data.msg)
+        }else{
+          this.$message.error(res.data.msg)
+        }
+        this.aiVisble = false
+      }).catch((error) => {
+        console.error(error)
+        this.aiVisble = false
+      });
+    },
+    handleNodeClick(data){
+      const keys = this.$refs.gdTree.getCheckedKeys()
+      this.checkLiast = keys
+    },
     initData: function () {
       this.getDeviceList();
     },
@@ -194,9 +252,10 @@ export default {
         this.getDeviceListLoading = false;
       });
     },
-    getAiList() {
+    getAiList(row) {
       this.aiLoading = true
       this.aiVisble = true
+      this.curRow = row
       this.$axios({
         method: 'get',
         url: `/api/ai/device/all`,
@@ -204,6 +263,10 @@ export default {
         const {code, data, msg} = res.data
         if (code === 0) {
           this.aiList = data;
+          const list = row.algorithms.map(v => {
+            return v.algorithmId
+          })
+          this.$refs.gdTree.setCheckedKeys(list)
         } else {
           this.$message.error(msg)
         }

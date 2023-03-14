@@ -20,9 +20,10 @@
               <div v-for="i in spilt" :key="i" class="play-box"
                    :style="liveStyle" :class="{redborder:playerIdx == (i-1)}"
                    @click="playerIdx = (i-1)">
+                   <div style="position: absolute; left: 0; right: 0; word-break: break-all;">666{{videoUrl[i-1]}}</div>
                 <div v-if="!videoUrl[i-1]" style="color: #ffffff;font-size: 30px;font-weight: bold;">{{ i }}</div>
 <!--                <video class="video" id="video" controls autoplay v-else></video>-->
-                <video class="video" :id="videoId" controls autoplay v-else></video>
+                <video class="video" :id="`video${i}`" controls autoplay v-else></video>
 <!--                 <video class="video" :src="videoUrl[i-1]" autoplay controls playsinline v-else></video>-->
                 <!-- <player ref="player" v-else :videoUrl="videoUrl[i-1]" fluent autoplay @screenshot="shot" @destroy="destroy"/> -->
               </div>
@@ -123,9 +124,6 @@ export default {
   },
 
   computed: {
-    videoId(){
-      return 'video'+(this.playerIdx+1)
-    },
     liveStyle() {
       let style = {width: '100%', height: '100%'}
       switch (this.spilt) {
@@ -221,7 +219,7 @@ export default {
       // this.isLoging = true;
       let channelId = itemData.channelId;
       console.log("通知设备推流1：" + deviceId + " : " + channelId);
-      let idxTmp = this.playerIdx+1
+      let idxTmp = this.playerIdx
       let that = this;
       this.loading = true
       this.$axios({
@@ -230,9 +228,9 @@ export default {
       }).then(function (res) {
         if (res.data.code === 0 && res.data.data) {
           that.listVisble = true
-          that.getDeviceList()
-          that.getdata = res.data.data.rtsp
-          that.getUser(JSON.stringify(res.data.data.rtsp))
+          // that.getDeviceList()
+          // that.getdata = res.data.data.rtsp
+          // that.getUser(JSON.stringify(res.data.data.rtsp))
           let videoUrl = res.data.data.rtsp;
           // if (location.protocol === "https:") {
           //   videoUrl = res.data.data.wss_flv;
@@ -327,12 +325,13 @@ export default {
     },*/
     setPlayUrl(url, idx) {
       this.$set(this.videoUrl, idx, url)
+      console.log(6789,url)
       console.log('##@@##@@idx=',idx)
       console.log('##@@##@@url=',url)
       console.log('##@@##@@$$$$$=',`video${idx}`)
       this.$nextTick(() => {
         //let item = new WebRtcStreamer(`video${idx}`, `${location.protocol}//${this.playIp}`)
-        let item = new WebRtcStreamer(`video${idx}`, `${location.protocol}//${this.playIp}`)
+        let item = new WebRtcStreamer(`video${idx + 1}`, `${location.protocol}//${this.playIp}`)
 
         this.$set(this.webRtcServer, idx, item)
         this.webRtcServer[idx].connect(url)
@@ -415,6 +414,7 @@ export default {
 }
 
 .play-box {
+  position: relative;
   background-color: #000000;
   border: 2px solid #505050;
   display: flex;

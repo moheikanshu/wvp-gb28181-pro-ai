@@ -44,7 +44,8 @@ export default {
             children: 'children',
             label: 'name',
             isLeaf: 'isLeaf'
-          }
+          },
+          deviceList: [],
         };
     },
     props: ['device', 'onlyCatalog', 'clickEvent', 'contextMenuEvent'],
@@ -52,7 +53,8 @@ export default {
       handleNodeClick(data,node,element) {
         let deviceNode = this.$refs.gdTree.getNode(data.userData.deviceId)
         if(typeof (this.clickEvent) == "function") {
-          this.clickEvent(deviceNode.data.userData, data.userData, data.type === 2)
+          const item = this.deviceList.find(v => v.deviceId == data.userData.deviceId)
+          this.clickEvent(deviceNode.data.userData, data.userData, data.type === 2, item)
         }
       },
       handleContextMenu(event,data,node,element) {
@@ -63,7 +65,6 @@ export default {
         }
       },
       loadNode: function(node, resolve){
-        console.log(this.device)
         if (node.level === 0) {
           if (this.device) {
             let node = {
@@ -77,9 +78,9 @@ export default {
             resolve([node])
           }else {
             this.deviceService.getAllDeviceList((data)=>{
-              console.log(data)
               if (data.length > 0) {
                 let nodeList = []
+                this.deviceList = [...data]
                 for (let i = 0; i < data.length; i++) {
                   console.log(data[i].name)
                   let node = {

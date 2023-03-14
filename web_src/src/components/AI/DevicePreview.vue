@@ -21,7 +21,7 @@
                    :style="liveStyle" :class="{redborder:playerIdx == (i-1)}"
                    @click="playerIdx = (i-1)">
                 <div v-if="!videoUrl[i-1]" style="color: #ffffff;font-size: 30px;font-weight: bold;">{{ i }}</div>
-                <video class="video" id="video" controls autoplay v-else></video>
+                <video class="video" :id="`video${i}`" controls autoplay v-else></video>
                 <!-- <video class="video" :src="videoUrl[i-1]" autoplay controls playsinline v-else></video> -->
                 <!-- <player ref="player" v-else :videoUrl="videoUrl[i-1]" fluent autoplay @screenshot="shot" @destroy="destroy"/> -->
               </div>
@@ -113,6 +113,7 @@ export default {
       queryData: [],
       webRtcServer: [],
       playIp: '417u0941d0.wicp.vip:8000',
+      curRow: {},
     };
   },
   mounted() {
@@ -204,11 +205,12 @@ export default {
       console.log(idx);
       this.clear(idx.substring(idx.length - 1))
     },
-    clickEvent: function (device, data, isCatalog) {
+    clickEvent: function (device, data, isCatalog, item) {
       if (data.channelId && !isCatalog) {
         if (device.online === 0) {
           this.$message.error('设备离线!不允许点播');
         }else {
+          this.curRow = {...item}
           this.sendDevicePush(data)
         }
       }
@@ -236,19 +238,16 @@ export default {
         url: '/api/play/start/' + deviceId + '/' + channelId
       }).then(function (res) {
         if (res.data.code === 0 && res.data.data) {
-          that.listVisble = true
-          that.getDeviceList()
-          that.getdata = res.data.data.rtsp
-          // that.getUser(JSON.stringify(res.data.data.rtsp))
-          // let videoUrl;
-          // if (location.protocol === "https:") {
-          //   videoUrl = res.data.data.wss_flv;
-          // } else {
-          //   videoUrl = res.data.data.ws_flv;
-          // }
-          // console.log(111,videoUrl)
-          // itemData.playUrl = videoUrl;
-          // that.setPlayUrl(videoUrl, idxTmp);deviceList
+          if(that.curRow.algorithm == 1){
+            // 开启算法
+            that.listVisble = true
+            that.getdata = res.data.data.rtsp
+            that.getDeviceList()
+          }else{
+            // 算法关闭
+            let videoUrl = res.data.data.rtsp
+            that.setPlayUrl(videoUrl, idxTmp)
+          }
         } else {
           that.$message.error(res.data.msg);
         }
@@ -265,7 +264,12 @@ export default {
       }).then( (res)=> {
         const { code, data, msg } = res.data
         if (code === 0) {
-          this.deviceList = data;
+          const { algorithms } = this.curRow
+          const list = data.filter( v => {
+            const temp = algorithms.find( item => item.algorithmId == v.id)
+            if(temp) return v
+          })
+          this.deviceList = list
         }else{
           this.$message.error(msg)
         }
@@ -358,7 +362,7 @@ export default {
     setPlayUrl(url, idx) {
       this.$set(this.videoUrl, idx, url)
       this.$nextTick(() => {
-        let item = new WebRtcStreamer('video', `${location.protocol}//${this.playIp}`)
+        let item = new WebRtcStreamer(`video${idx + 1}`, `${location.protocol}//${this.playIp}`)
         this.$set(this.webRtcServer, idx, item)
         this.webRtcServer[idx].connect(url)
       })

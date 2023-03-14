@@ -1,8 +1,8 @@
 <template>
   <div id="devicePlayer" v-loading="isLoging">
 
-    <el-dialog title="视频播放" top="0" :close-on-click-modal="false" :visible.sync="showVideoDialog" @close="close()">
-      <div style="width: 100%; height: 100%">
+    <el-dialog title="视频播放" top="0" :close-on-click-modal="false" :visible.sync="showVideoDialog" @close="close()" width="950px">
+      <div style="width: 100%; height: 100%; position: relative;">
         <el-tabs type="card" :stretch="true" v-model="activePlayer" @tab-click="changePlayer"
                  v-if="Object.keys(this.player).length > 1">
           <!--          <el-tab-pane label="LivePlayer" name="livePlayer">-->
@@ -27,7 +27,9 @@
         <rtc-player v-if="Object.keys(this.player).length == 1 && this.player.webRTC" ref="jessibuca"
                     :visible.sync="showVideoDialog" :videoUrl="videoUrl" :error="videoError" :message="videoError"
                     height="100px" :hasAudio="hasAudio" fluent autoplay live></rtc-player>
-
+        <div class="canvas-box" v-if="tabActiveName == 'area'">
+          <CanvasBlock ref="canvasblock"></CanvasBlock>
+        </div>
       </div>
       <div id="shared" style="text-align: right; margin-top: 1rem;">
         <el-tabs v-model="tabActiveName" @tab-click="tabHandleClick">
@@ -364,10 +366,10 @@
 
             <div style="display: flex; margin-bottom: 0.5rem; height: 2.5rem;">
               <el-button class="area-button" type="primary" icon="el-icon-info">默认</el-button>
-              <el-button class="area-button" type="primary" icon="el-icon-refresh">刷新</el-button>
+              <el-button class="area-button" type="primary" icon="el-icon-refresh" @click="clearCanvas">刷新</el-button>
               <el-button class="area-button" type="primary" icon="el-icon-circle-check">确定</el-button>
-              <el-button class="area-button" type="primary" icon="el-icon-s-release">清空</el-button>
-              <el-button class="area-button" type="primary" icon="el-icon-delete">删除</el-button>
+              <el-button class="area-button" type="primary" icon="el-icon-s-release" @click="clearCanvas">清空</el-button>
+              <el-button class="area-button" type="primary" icon="el-icon-delete" @click="clearCanvas">删除</el-button>
               <el-switch style="margin-top: 0.5rem" v-model="area_enable" active-color="#13ce66"  inactive-color="#ff4949" active-value="1" inactive-value="0"></el-switch>
             </div>
           </el-tab-pane>
@@ -383,13 +385,14 @@ import rtcPlayer from '../dialog/rtcPlayer.vue'
 import LivePlayer from '@liveqing/liveplayer'
 // import player from '../dialog/easyPlayer.vue'
 import jessibucaPlayer from '../common/jessibuca.vue'
+import CanvasBlock from '../common/CanvasBlock.vue'
 import recordDownload from '../dialog/recordDownload.vue'
 
 export default {
   name: 'devicePlayer',
   props: {},
   components: {
-    LivePlayer, jessibucaPlayer, rtcPlayer, recordDownload,
+    LivePlayer, jessibucaPlayer, rtcPlayer, recordDownload, CanvasBlock,
   },
   computed: {
     getPlayerShared: function () {
@@ -455,10 +458,14 @@ export default {
       recordStartTime: 0,
       showTimeText: "00:00:00",
       streamInfo: null,
-      area_enable: '0'
+      area_enable: '0',
+
     };
   },
   methods: {
+    clearCanvas(){
+      this.$refs.canvasblock.clear()
+    },
     tabHandleClick: function (tab, event) {
       console.log(tab)
       var that = this;
@@ -928,6 +935,14 @@ export default {
 </script>
 
 <style>
+.canvas-box{
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 56px;
+  bottom: 0;
+  z-index: 100;
+}
 .area-button{
   width: 7.5rem;
   float: left;
