@@ -281,7 +281,7 @@ export default {
         url: '/api/play/stop/' + this.deviceId + "/" + itemData.channelId
       }).then(function (res) {
         that.initData();
-      }).catch(function (error) {
+      }).catch(function (error) {console.log('DM error=',error.response)
         if (error.response.status === 402) { // 已经停止过
           that.initData();
         } else {

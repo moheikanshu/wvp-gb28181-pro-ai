@@ -3,6 +3,9 @@
     <el-container v-loading="loading" style="height: 91vh;" element-loading-text="拼命加载中">
       <el-aside width="300px" style="background-color: #ffffff">
         <DeviceTree :clickEvent="clickEvent" :contextMenuEvent="contextMenuEvent"></DeviceTree>
+        <div class="button-box">
+          <el-button class="pezhi-button" type="primary" @click="showVisble = true">配置ip</el-button>
+        </div>
       </el-aside>
       <el-container>
         <el-header height="5vh" style="text-align: left;font-size: 17px;line-height:5vh">
@@ -12,15 +15,33 @@
           <i class="el-icon-s-grid btn" :class="{active:spilt==9}" @click="spilt=9"/>
         </el-header>
         <el-main style="padding: 0;">
-          <div style="width: 99%;height: 85vh;display: flex;flex-wrap: wrap;background-color: #000;">
-            <div v-for="i in spilt" :key="i" class="play-box"
-                 :style="liveStyle" :class="{redborder:playerIdx == (i-1)}"
-                 @click="playerIdx = (i-1)">
-              <div v-if="!videoUrl[i-1]" style="color: #ffffff;font-size: 30px;font-weight: bold;">{{ i }}</div>
-              <player ref="player" v-else :videoUrl="videoUrl[i-1]" fluent autoplay @screenshot="shot"
-                      @destroy="destroy"/>
+          <div class="flex" style="width: 99%;height: 85vh;background-color: #000;">
+            <div class="flex-item ht100 flex" style="flex-wrap: wrap;">
+              <div v-for="i in spilt" :key="i" class="play-box"
+                   :style="liveStyle" :class="{redborder:playerIdx == (i-1)}"
+                   @click="playerIdx = (i-1)">
+                <div v-if="!videoUrl[i-1]" style="color: #ffffff;font-size: 30px;font-weight: bold;">{{ i }}</div>
+<!--                <video class="video" id="video" controls autoplay v-else></video>-->
+                <video class="video" :id="videoId" controls autoplay v-else></video>
+<!--                 <video class="video" :src="videoUrl[i-1]" autoplay controls playsinline v-else></video>-->
+                <!-- <player ref="player" v-else :videoUrl="videoUrl[i-1]" fluent autoplay @screenshot="shot" @destroy="destroy"/> -->
+              </div>
+            </div>
+            <div class="video-text ht100" v-if="queryData.length">
+              <div class="item" v-for="(item, index) in queryData" :key="index">
+                <p class="ptit">{{item.ip}}:{{item.port}}</p>
+                <p class="ptxt">{{item.data}}</p>
+              </div>
             </div>
           </div>
+          <el-dialog title="配置ip" :visible.sync="showVisble">
+            <div class="box"><el-input v-model="inputUrl"></el-input></div>
+            <span slot="footer">
+          		<!-- 确定 -->
+              <!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
+          		<el-button type="primary" @click="saveUrl">保存</el-button>
+          	</span>
+          </el-dialog>
         </el-main>
       </el-container>
     </el-container>
@@ -28,9 +49,9 @@
 </template>
 
 <script>
-import uiHeader from "../layout/UiHeader.vue";
-import player from './common/jessibuca.vue'
-import DeviceTree from './common/DeviceTree.vue'
+import uiHeader from "@/layout/UiHeader.vue";
+import player from '@/components/common/jessibuca.vue'
+import DeviceTree from '@/components/common/DeviceTree.vue'
 
 export default {
   name: "live",
@@ -48,17 +69,63 @@ export default {
       total: 0,
 
       //channel
-      loading: false
+      loading: false,
+      showVisble: false,
+      inputUrl: '417u0941d0.wicp.vip:8000',
+      itemDatas: {},
+      listVisble: false, //显示设备列表弹窗
+      getdata: '',
+      treeList: [
+        {
+          children: null,
+          id: 1,
+          label: '测试1'
+        },
+        {
+          children: null,
+          id: 2,
+          label: '测试2'
+        },
+        {
+          children: null,
+          id: 3,
+          label: '测试3'
+        },
+      ],
+      defaultProps: {
+        children: 'children',
+        label: 'name'
+      },
+      deviceList: [],
+      deviceLoading: false,
+      checkedNode: {},
+      personTimer: [],
+      queryData: [],
+      webRtcServer: [],
+      playIp: '417u0941d0.wicp.vip:8000',
     };
   },
   mounted() {
 
   },
+  beforeDestroy(){
+    this.webRtcServer.forEach((v) => {
+      v.disconnect()
+    })
+    this.webRtcServer = []
+  },
   created() {
+    // let personTimer = setInterval(() => {
+    //   this.setPerson('0.0.0.0', 8000)
+    // }, 5000)
+    // this.$set(this.personTimer, this.playerIdx, personTimer)
     this.checkPlayByParam()
   },
 
   computed: {
+    videoId(){
+      return 'video'+(this.playerIdx+1)
+    },
     liveStyle() {
       let style = {width: '100%', height: '100%'}
       switch (this.spilt) {
@@ -79,6 +146,11 @@ export default {
     }
   },
   watch: {
+    listVisble(val){
+      if(!val){
+        this.checkedNode = {}
+      }
+    },
     spilt(newValue) {
       console.log("切换画幅;" + newValue)
       let that = this
@@ -101,8 +173,26 @@ export default {
   },
   destroyed() {
     clearTimeout(this.updateLooper);
+    // if(this.personTimer.length){
+    //   this.personTimer.forEach((v) => {
+    //     clearInterval(v)
+    //   })
+    //   this.personTimer = []
+    // }
   },
   methods: {
+    handleNodeClick(data){
+      const { id } = data
+      this.checkedNode = data
+      this.$refs.gdTree.setCheckedKeys([id])
+    },
+    saveUrl(){
+      if(!this.inputUrl){
+        return this.$message.error('请输入地址')
+      }
+      this.playIp = this.inputUrl
+      this.showVisble = false
+    },
     destroy(idx) {
       console.log(idx);
       this.clear(idx.substring(idx.length - 1))
@@ -126,11 +216,12 @@ export default {
       //   return
       // }
       this.save(itemData)
+      this.itemDatas = itemData
       let deviceId = itemData.deviceId;
       // this.isLoging = true;
       let channelId = itemData.channelId;
       console.log("通知设备推流1：" + deviceId + " : " + channelId);
-      let idxTmp = this.playerIdx
+      let idxTmp = this.playerIdx+1
       let that = this;
       this.loading = true
       this.$axios({
@@ -138,12 +229,17 @@ export default {
         url: '/api/play/start/' + deviceId + '/' + channelId
       }).then(function (res) {
         if (res.data.code === 0 && res.data.data) {
-          let videoUrl;
-          if (location.protocol === "https:") {
-            videoUrl = res.data.data.wss_flv;
-          } else {
-            videoUrl = res.data.data.ws_flv;
-          }
+          that.listVisble = true
+          that.getDeviceList()
+          that.getdata = res.data.data.rtsp
+          that.getUser(JSON.stringify(res.data.data.rtsp))
+          let videoUrl = res.data.data.rtsp;
+          // if (location.protocol === "https:") {
+          //   videoUrl = res.data.data.wss_flv;
+          // } else {
+          //   videoUrl = res.data.data.ws_flv;
+          // }
+          console.log('###videoUrl=',videoUrl)
           itemData.playUrl = videoUrl;
           that.setPlayUrl(videoUrl, idxTmp);
         } else {
@@ -154,8 +250,95 @@ export default {
         that.loading = false
       });
     },
+    getDeviceList(){
+      this.deviceLoading = true
+      this.$axios({
+        method: 'get',
+        url: `/api/ai/device/all`,
+      }).then( (res)=> {
+        const { code, data, msg } = res.data
+        if (code === 0) {
+          this.deviceList = data;
+        }else{
+          this.$message.error(msg)
+        }
+        this.deviceLoading = false;
+      }).catch( (error)=> {
+        console.error(error);
+        this.deviceLoading = false;
+      });
+    },
+    urlSubmit(){
+      this.loading = true
+      this.getUser(this.getdata)
+      this.listVisble = false
+    },
+    getUser(rtspUrl){
+      let that = this;
+      const { ip, port } = this.checkedNode
+      this.listVisble = false
+
+          console.log('$$$$rtspUrl=',rtspUrl)
+          console.log('$$$$本次playerIdx=',that.playerIdx.toString())
+          that.setPlayUrl(rtspUrl, that.playerIdx)
+          // let personTimer = setInterval(() => {
+          //   that.getPersons(ip, port)
+          // }, 2000)
+          // let personTimer = setInterval(() => {
+          //   that.setPerson(ip, port)
+          // }, 5000)
+          // that.$set(that.personTimer, that.playerIdx, personTimer)
+
+        // that.setPlayUrl('rtsp://192.168.2.14/media/flv/video1', that.playerIdx)
+        that.loading = false
+
+    },
+    // setPerson(ip, port){
+    //   const randNum = Math.floor(Math.random() * 6)
+    //   let item = {
+    //     ip: ip,
+    //     port: port,
+    //     data: `Person:${randNum}人`
+    //   }
+    //   this.queryData = this.queryData.concat(item)
+    // },
+    /*getPersons(ip, port){
+      let that = this
+      that.$axios({
+        method: 'post',
+        // url: `http://192.168.200.8:1936/users?name=[1,${rtspUrl}]`,
+        url: `${location.protocol}//${ip}:${port}/persons`,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      }).then(function (res) {
+        console.log('请求成功',res.data.Url,res)
+        if(res.data){
+          let item = {
+            ip: ip,
+            port: port,
+            data: data
+          }
+          that.queryData = that.queryData.concat(item)
+        }
+      }).catch(function (e) {
+        console.log('请求失败',e)
+      })
+    },*/
     setPlayUrl(url, idx) {
       this.$set(this.videoUrl, idx, url)
+      console.log('##@@##@@idx=',idx)
+      console.log('##@@##@@url=',url)
+      console.log('##@@##@@$$$$$=',`video${idx}`)
+      this.$nextTick(() => {
+        //let item = new WebRtcStreamer(`video${idx}`, `${location.protocol}//${this.playIp}`)
+        let item = new WebRtcStreamer(`video${idx}`, `${location.protocol}//${this.playIp}`)
+
+        this.$set(this.webRtcServer, idx, item)
+        this.webRtcServer[idx].connect(url)
+      })
+
+      // this.$set(this.videoUrl, idx, url)
       let _this = this
       setTimeout(() => {
         window.localStorage.setItem('videoUrl', JSON.stringify(_this.videoUrl))
@@ -209,6 +392,10 @@ export default {
 };
 </script>
 <style>
+.el-main{
+  padding-right: 3px;
+  padding-bottom: 0;
+}
 .btn {
   margin: 0 10px;
 
@@ -307,5 +494,56 @@ export default {
 
 .baidumap > .anchorBL {
   display: none !important;
+}
+.button-box{
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 20px;
+}
+.el-aside{
+  position: relative;
+}
+.video{
+  width: 100%;
+  height: 100%;
+}
+.list-tree /deep/ .el-tree-node__label{
+  font-size: 16px;
+}
+.tree-box{
+  max-height: 400px;
+  overflow: auto;
+}
+.flex {
+  display: flex;
+}
+.flex-item{
+  flex: 1;
+}
+.video-text{
+  width: 250px;
+  color: #fff;
+  height: 100%;
+  overflow: auto;
+  font-size: 14px;
+  text-align: left;
+}
+.play-boxs{
+  width: 100%;
+  height: 100%;
+}
+.video-box{
+  height: 100%;
+}
+.video-text .item{
+  padding: 0 10px;
+  word-break: break-all;
+}
+.video-text .item + .item{
+  border-top: 1px solid #fff;
+}
+.ht100{
+  height: 100%;
 }
 </style>

@@ -34,21 +34,21 @@
             </div>
           </div>
           <el-dialog title="配置ip" :visible.sync="showVisble">
-          	<div class="box"><el-input v-model="inputUrl"></el-input></div>
-          	<span slot="footer">
+            <div class="box"><el-input v-model="inputUrl"></el-input></div>
+            <span slot="footer">
           		<!-- 确定 -->
-          		<!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
+              <!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
           		<el-button type="primary" @click="saveUrl">保存</el-button>
           	</span>
           </el-dialog>
           <el-dialog title="列表" :visible.sync="listVisble" :close-on-click-modal="false" width="400px">
-          	<div class="tree-box" v-if="listVisble">
+            <div class="tree-box" v-if="listVisble">
               <el-tree class="list-tree" ref="gdTree" v-loading="deviceLoading" :props="defaultProps" :data="deviceList" show-checkbox :check-on-click-node="true" :default-expand-all="true" node-key="id" @check="handleNodeClick">
               </el-tree>
             </div>
-          	<span slot="footer">
+            <span slot="footer">
           		<!-- 确定 -->
-          		<!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
+              <!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
           		<el-button type="primary" @click="urlSubmit">确定</el-button>
           	</span>
           </el-dialog>
@@ -81,7 +81,7 @@ export default {
       //channel
       loading: false,
       showVisble: false,
-      inputUrl: '127.0.0.1',
+      inputUrl: '417u0941d0.wicp.vip:8000',
       itemDatas: {},
       listVisble: false, //显示设备列表弹窗
       getdata: '',
@@ -112,7 +112,7 @@ export default {
       personTimer: [],
       queryData: [],
       webRtcServer: [],
-      playIp: '127.0.0.1',
+      playIp: '417u0941d0.wicp.vip:8000',
     };
   },
   mounted() {
@@ -358,7 +358,7 @@ export default {
     setPlayUrl(url, idx) {
       this.$set(this.videoUrl, idx, url)
       this.$nextTick(() => {
-        let item = new WebRtcStreamer('video', `${location.protocol}//${this.playIp}:8000`)
+        let item = new WebRtcStreamer('video', `${location.protocol}//${this.playIp}`)
         this.$set(this.webRtcServer, idx, item)
         this.webRtcServer[idx].connect(url)
       })
@@ -544,7 +544,7 @@ export default {
   display: flex;
 }
 .flex-item{
-	flex: 1;
+  flex: 1;
 }
 .video-text{
   width: 250px;

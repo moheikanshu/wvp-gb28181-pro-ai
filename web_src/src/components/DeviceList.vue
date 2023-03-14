@@ -10,12 +10,13 @@
       </div>
     </div>
     <!--设备列表-->
-    <el-table :data="deviceList" style="width: 100%;font-size: 12px;" :height="winHeight" header-row-class-name="table-header">
+    <el-table :data="deviceList" style="width: 100%;font-size: 12px;" :height="winHeight"
+              header-row-class-name="table-header">
       <el-table-column prop="name" label="名称" min-width="160">
       </el-table-column>
-      <el-table-column prop="deviceId" label="设备编号" min-width="200" >
+      <el-table-column prop="deviceId" label="设备编号" min-width="160">
       </el-table-column>
-      <el-table-column label="地址" min-width="160" >
+      <el-table-column label="地址" min-width="160">
         <template slot-scope="scope">
           <div slot="reference" class="name-wrapper">
             <el-tag v-if="scope.row.hostAddress" size="medium">{{ scope.row.hostAddress }}</el-tag>
@@ -23,20 +24,21 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="manufacturer" label="厂家" min-width="120" >
+      <el-table-column prop="manufacturer" label="厂家" min-width="120">
       </el-table-column>
-      <el-table-column label="流传输模式"  min-width="160" >
+      <el-table-column label="流传输模式" min-width="160">
         <template slot-scope="scope">
-          <el-select size="mini" @change="transportChange(scope.row)" v-model="scope.row.streamMode" placeholder="请选择" style="width: 120px">
+          <el-select size="mini" @change="transportChange(scope.row)" v-model="scope.row.streamMode"
+                     placeholder="请选择" style="width: 120px">
             <el-option key="UDP" label="UDP" value="UDP"></el-option>
             <el-option key="TCP-ACTIVE" label="TCP主动模式" :disabled="true" value="TCP-ACTIVE"></el-option>
             <el-option key="TCP-PASSIVE" label="TCP被动模式" value="TCP-PASSIVE"></el-option>
           </el-select>
         </template>
       </el-table-column>
-      <el-table-column prop="channelCount" label="通道数" min-width="120" >
+      <el-table-column prop="channelCount" label="通道数" min-width="72">
       </el-table-column>
-      <el-table-column label="状态" min-width="120">
+      <el-table-column label="状态" min-width="72">
         <template slot-scope="scope">
           <div slot="reference" class="name-wrapper">
             <el-tag size="medium" v-if="scope.row.online == 1">在线</el-tag>
@@ -44,18 +46,19 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column prop="keepaliveTime" label="最近心跳" min-width="160" >
+      <el-table-column prop="keepaliveTime" label="最近心跳" min-width="140">
       </el-table-column>
-      <el-table-column prop="registerTime" label="最近注册"  min-width="160">
+      <el-table-column prop="registerTime" label="最近注册" min-width="140">
       </el-table-column>
-<!--      <el-table-column prop="updateTime" label="更新时间"  width="140">-->
-<!--      </el-table-column>-->
-<!--      <el-table-column prop="createTime" label="创建时间"  width="140">-->
-<!--      </el-table-column>-->
+      <!--      <el-table-column prop="updateTime" label="更新时间"  width="140">-->
+      <!--      </el-table-column>-->
+      <!--      <el-table-column prop="createTime" label="创建时间"  width="140">-->
+      <!--      </el-table-column>-->
 
       <el-table-column label="操作" min-width="450" fixed="right">
         <template slot-scope="scope">
-          <el-button type="text" size="medium" v-bind:disabled="scope.row.online==0" icon="el-icon-refresh" @click="refDevice(scope.row)"
+          <el-button type="text" size="medium" v-bind:disabled="scope.row.online==0" icon="el-icon-refresh"
+                     @click="refDevice(scope.row)"
                      @mouseover="getTooltipContent(scope.row.deviceId)">刷新
           </el-button>
           <el-divider direction="vertical"></el-divider>
@@ -69,7 +72,26 @@
           <el-divider direction="vertical"></el-divider>
           <el-button size="medium" icon="el-icon-edit" type="text" @click="edit(scope.row)">编辑</el-button>
           <el-divider direction="vertical"></el-divider>
-          <el-button size="medium" icon="el-icon-delete" type="text" @click="deleteDevice(scope.row)" style="color: #f56c6c">删除</el-button>
+          <el-button size="medium" icon="el-icon-delete" type="text" @click="deleteDevice(scope.row)"
+                     style="color: #f56c6c">删除
+          </el-button>
+          <el-divider direction="vertical"></el-divider>
+          <el-button size="medium" icon="el-icon-s-operation" type="text" @click="getAiList">
+            算法
+          </el-button>
+          <el-divider direction="vertical"></el-divider>
+          <el-switch v-model="value0" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          <el-dialog title="列表" :visible.sync="aiVisble" :close-on-click-modal="false" width="400px">
+            <div class="tree-box" v-if="aiVisble">
+              <el-tree class="list-tree" ref="gdTree" v-loading="aiLoading" :data="aiList" show-checkbox :check-on-click-node="true" :default-expand-all="true" node-key="id" @check="handleNodeClick">
+              </el-tree>
+            </div>
+            <span slot="footer">
+          		<!-- 确定 -->
+              <!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
+          		<el-button type="primary" @click="aiVisble = false">确定</el-button>
+          	</span>
+          </el-dialog>
         </template>
       </el-table-column>
     </el-table>
@@ -102,9 +124,12 @@ export default {
   },
   data() {
     return {
+      value0: '0',
+      aiLoading: false,
+      aiList: [],
+      aiVisble: false, //显示算法列表弹窗
       deviceList: [], //设备列表
       currentDevice: {}, //当前操作设备对象
-
       videoComponentList: [],
       updateLooper: 0, //数据刷新轮训标志
       currentDeviceChannelsLenth: 0,
@@ -129,7 +154,7 @@ export default {
     }
   },
   mounted() {
-    console.log(11,this.$cookies)
+    console.log(11, this.$cookies)
     this.initData();
     this.updateLooper = setInterval(this.initData, 10000);
   },
@@ -158,15 +183,34 @@ export default {
           page: this.currentPage,
           count: this.count
         }
-      }).then( (res)=> {
+      }).then((res) => {
         if (res.data.code === 0) {
           this.total = res.data.data.total;
           this.deviceList = res.data.data.list;
         }
         this.getDeviceListLoading = false;
-      }).catch( (error)=> {
+      }).catch((error) => {
         console.error(error);
         this.getDeviceListLoading = false;
+      });
+    },
+    getAiList() {
+      this.aiLoading = true
+      this.aiVisble = true
+      this.$axios({
+        method: 'get',
+        url: `/api/ai/device/all`,
+      }).then((res) => {
+        const {code, data, msg} = res.data
+        if (code === 0) {
+          this.aiList = data;
+        } else {
+          this.$message.error(msg)
+        }
+        this.aiLoading = false;
+      }).catch((error) => {
+        console.error(error);
+        this.aiLoading = false;
       });
     },
     deleteDevice: function (row) {
