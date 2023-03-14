@@ -41,10 +41,11 @@
           		<el-button type="primary" @click="saveUrl">保存</el-button>
           	</span>
           </el-dialog>
-          <el-dialog title="列表" :visible.sync="listVisble" :close-on-click-modal="false" width="400px">
+          <el-dialog title="列表" custom-class="com-dialog" :visible.sync="listVisble" :close-on-click-modal="false" width="534px">
             <div class="tree-box" v-if="listVisble">
-              <el-tree class="list-tree" ref="gdTree" v-loading="deviceLoading" :props="defaultProps" :data="deviceList" show-checkbox :check-on-click-node="true" :default-expand-all="true" node-key="id" @check="handleNodeClick">
-              </el-tree>
+              <el-radio-group class="com-group" v-model="checkedid" @change="idChange">
+                <el-radio :label="item.id" v-for="(item, index) in deviceList" :key="index">{{item.name}}</el-radio>
+              </el-radio-group>
             </div>
             <span slot="footer">
           		<!-- 确定 -->
@@ -109,6 +110,7 @@ export default {
       deviceList: [],
       deviceLoading: false,
       checkedNode: {},
+      checkedid: '',
       personTimer: [],
       queryData: [],
       webRtcServer: [],
@@ -156,6 +158,7 @@ export default {
   watch: {
     listVisble(val){
       if(!val){
+        this.checkedid = ''
         this.checkedNode = {}
       }
     },
@@ -189,10 +192,11 @@ export default {
     }
   },
   methods: {
-    handleNodeClick(data){
-      const { id } = data
-      this.checkedNode = data
-      this.$refs.gdTree.setCheckedKeys([id])
+    idChange(id){
+      const data = this.deviceList.find( v => v.id == id)
+      if(data){
+        this.checkedNode = data
+      }
     },
     saveUrl(){
       if(!this.inputUrl){
@@ -541,8 +545,7 @@ export default {
   font-size: 16px;
 }
 .tree-box{
-  max-height: 400px;
-  overflow: auto;
+  text-align: left;
 }
 .flex {
   display: flex;

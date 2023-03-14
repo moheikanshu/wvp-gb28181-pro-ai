@@ -94,15 +94,16 @@
       layout="total, sizes, prev, pager, next"
       :total="total">
     </el-pagination>
-    <el-dialog title="列表" :visible.sync="aiVisble" :close-on-click-modal="false" append-to-body width="400px">
+    <el-dialog title="列表" custom-class="com-dialog" :visible.sync="aiVisble" :close-on-click-modal="false" append-to-body width="534px" center>
       <div class="tree-box" v-if="aiVisble">
-        <el-tree class="list-tree" ref="gdTree" v-loading="aiLoading" :props="defaultProps" :data="aiList" show-checkbox :check-on-click-node="true" :default-expand-all="true" node-key="id" @check="handleNodeClick">
-        </el-tree>
+        <el-checkbox-group class="com-group" v-model="checkLiast">
+          <el-checkbox :label="item.id" v-for="(item, index) in aiList" :key="index">{{item.name}}</el-checkbox>
+        </el-checkbox-group>
       </div>
       <span slot="footer">
     		<!-- 确定 -->
         <!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
-    		<el-button type="primary" @click="saveAlgorithm">确定</el-button>
+    		<el-button class="com-btn" type="primary" @click="saveAlgorithm">确定</el-button>
     	</span>
     </el-dialog>
     <deviceEdit ref="deviceEdit"></deviceEdit>
@@ -208,6 +209,7 @@ export default {
       }).then((res) => {
         if (res.data.code === 0) {
           this.$message.success(res.data.msg)
+          this.initData()
         }else{
           this.$message.error(res.data.msg)
         }
@@ -216,10 +218,6 @@ export default {
         console.error(error)
         this.aiVisble = false
       });
-    },
-    handleNodeClick(data){
-      const keys = this.$refs.gdTree.getCheckedKeys()
-      this.checkLiast = keys
     },
     initData: function () {
       this.getDeviceList();
@@ -266,6 +264,7 @@ export default {
           const list = row.algorithms.map(v => {
             return v.algorithmId
           })
+          this.checkLiast = list
           this.$refs.gdTree.setCheckedKeys(list)
         } else {
           this.$message.error(msg)

@@ -105,4 +105,40 @@ body,
   color: #727272;
   font-weight: 600;
 }
+.com-btn{
+  width: 308px;
+  font-size: 18px;
+}
+.com-dialog .el-dialog__title{
+  font-size: 24px;
+}
+.com-dialog .el-dialog__footer{
+  padding-bottom: 36px;
+}
+.com-dialog .el-dialog__header{
+  padding-top: 36px;
+}
+.com-group .el-checkbox,.com-group .el-radio__label{
+  margin-right: 100px;
+}
+.com-group .el-checkbox__label,.com-group .el-radio__label{
+  font-size: 20px;
+}
+.tree-box{
+  margin: 0 -25px 0 35px;
+}
+.com-group .el-checkbox__inner{
+  width: 18px;
+  height: 18px;
+}
+.com-group .el-checkbox__inner::after{
+  width: 6px;
+  height: 11px;
+  left: 4px;
+  top: 0;
+  border-width: 2px;
+}
+.com-group .el-checkbox__input,.com-group .el-radio__input{
+  margin-top: -5px;
+}
 </style>
