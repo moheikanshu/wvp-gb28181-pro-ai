@@ -1,6 +1,7 @@
 package com.genersoft.iot.vmp.storager.dao;
 
 import com.genersoft.iot.vmp.gb28181.bean.Device;
+import com.genersoft.iot.vmp.gb28181.bean.DeviceAlgorithm;
 import com.genersoft.iot.vmp.vmanager.bean.ResourceBaceInfo;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
@@ -114,6 +115,7 @@ public interface DeviceMapper {
                 "<if test=\"registerTime != null\">, registerTime='${registerTime}'</if>" +
                 "<if test=\"keepaliveTime != null\">, keepaliveTime='${keepaliveTime}'</if>" +
                 "<if test=\"expires != null\">, expires=${expires}</if>" +
+                "<if test=\"algorithm != null\">, algorithm=${algorithm}</if>" +
                 "WHERE deviceId='${deviceId}'"+
             " </script>"})
     int update(Device device);
@@ -145,7 +147,17 @@ public interface DeviceMapper {
             "geoCoordSys," +
             "treeType," +
             "online," +
+            "algorithm," +
             "(SELECT count(0) FROM device_channel WHERE deviceId=de.deviceId) as channelCount  FROM device de")
+    @Results({
+            @Result(property = "deviceId", column = "deviceId"),
+            @Result(
+                    property = "algorithms",
+                    column = "deviceId", //根据device表中的deviceId来查询 此用户所拥有的算法信息
+                    javaType = List.class, //返回此用户所拥有订单的List集合类型
+                    many = @Many(select = "com.genersoft.iot.vmp.storager.dao.DeviceAlgorithmMapper.listByDeviceId") //根据user数据表中id 在orders表中来查询此订单
+            )
+    })
     List<Device> getDevices();
 
     @Delete("DELETE FROM device WHERE deviceId=#{deviceId}")

@@ -2,6 +2,9 @@ package com.genersoft.iot.vmp.gb28181.bean;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import org.springframework.data.annotation.Transient;
+
+import java.util.List;
 
 /**
  * 国标设备/平台
@@ -177,6 +180,16 @@ public class Device {
 
 	@Schema(description = "收流IP")
 	private String sdpIp;
+
+	@Transient
+	@Schema(description = "算法列表")
+	private List<DeviceAlgorithm> algorithms;
+
+	@Transient
+	private List<Integer> algorithmIds;
+
+	@Schema(description = "算法开关（0关闭，1开启）")
+	private Integer algorithm;
 
 
 	public String getDeviceId() {
@@ -401,5 +414,29 @@ public class Device {
 
 	public void setSdpIp(String sdpIp) {
 		this.sdpIp = sdpIp;
+	}
+
+	public List<DeviceAlgorithm> getAlgorithms() {
+		return algorithms;
+	}
+
+	public void setAlgorithms(List<DeviceAlgorithm> algorithms) {
+		this.algorithms = algorithms;
+	}
+
+	public Integer getAlgorithm() {
+		return algorithm;
+	}
+
+	public void setAlgorithm(Integer algorithm) {
+		this.algorithm = algorithm;
+	}
+
+	public List<Integer> getAlgorithmIds() {
+		return algorithmIds;
+	}
+
+	public void setAlgorithmIds(List<Integer> algorithmIds) {
+		this.algorithmIds = algorithmIds;
 	}
 }
