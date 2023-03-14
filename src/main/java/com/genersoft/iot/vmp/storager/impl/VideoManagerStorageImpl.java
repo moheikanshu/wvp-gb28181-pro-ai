@@ -30,6 +30,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -98,6 +99,9 @@ public class VideoManagerStorageImpl implements IVideoManagerStorage {
 
 	@Autowired
     private ParentPlatformMapper parentPlatformMapper;
+
+	@Resource
+	private DeviceAlgorithmMapper deviceAlgorithmMapper;
 
 	/**
 	 * 根据设备ID判断设备是否存在

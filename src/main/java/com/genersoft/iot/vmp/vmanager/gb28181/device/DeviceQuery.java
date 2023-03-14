@@ -311,6 +311,24 @@ public class DeviceQuery {
 		}
 	}
 
+	@Operation(summary = "算法开关")
+	@PostMapping("/switchAlgorithm/")
+	public void switchAlgorithm(@RequestBody Device device){
+
+		if (device != null && device.getDeviceId() != null) {
+			deviceService.updateAlgorithm(device);
+		}
+	}
+
+	@Operation(summary = "算法设置")
+	@PostMapping("/algorithmSetting/")
+	public void algorithmSetting(@RequestBody Device device){
+
+		if (device != null && device.getDeviceId() != null) {
+			deviceService.algorithmSetting(device);
+		}
+	}
+
 	/**
 	 * 设备状态查询请求API接口
 	 * 

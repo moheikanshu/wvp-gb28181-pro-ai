@@ -13,12 +13,14 @@ import com.genersoft.iot.vmp.service.IDeviceService;
 import com.genersoft.iot.vmp.service.IMediaServerService;
 import com.genersoft.iot.vmp.storager.IRedisCatchStorage;
 import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
+import com.genersoft.iot.vmp.storager.dao.DeviceAlgorithmMapper;
 import com.genersoft.iot.vmp.storager.dao.DeviceChannelMapper;
 import com.genersoft.iot.vmp.storager.dao.DeviceMapper;
 import com.genersoft.iot.vmp.storager.dao.PlatformChannelMapper;
 import com.genersoft.iot.vmp.utils.DateUtil;
 import com.genersoft.iot.vmp.vmanager.bean.BaseTree;
 import com.genersoft.iot.vmp.vmanager.bean.ResourceBaceInfo;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +28,11 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import javax.annotation.Resource;
 import javax.sip.InvalidArgumentException;
 import javax.sip.SipException;
 import java.text.ParseException;
@@ -88,6 +93,9 @@ public class DeviceServiceImpl implements IDeviceService {
 
     @Autowired
     private IMediaServerService mediaServerService;
+
+    @Resource
+    private DeviceAlgorithmMapper deviceAlgorithmMapper;
 
     @Override
     public void online(Device device) {
@@ -332,6 +340,33 @@ public class DeviceServiceImpl implements IDeviceService {
             redisCatchStorage.updateDevice(device);
 
         }
+    }
+
+    @Override
+    public void updateAlgorithm(Device device) {
+        deviceMapper.update(device);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void algorithmSetting(Device device) {
+        deviceAlgorithmMapper.deleteByDeviceId(device.getDeviceId());
+        if(!CollectionUtils.isEmpty(device.getAlgorithmIds())){
+            List<DeviceAlgorithm> algorithms = Lists.newArrayList();
+            device.getAlgorithmIds().forEach(t->{
+                DeviceAlgorithm algorithm = new DeviceAlgorithm();
+                algorithm.setAlgorithmId(t);
+                algorithm.setDeviceId(device.getDeviceId());
+                algorithms.add(algorithm);
+            });
+            deviceAlgorithmMapper.batchAdd(algorithms);
+        }
+        deviceMapper.update(device);
+    }
+
+    @Override
+    public List<DeviceAlgorithm> queryAlgorithm(String deviceId) {
+        return deviceAlgorithmMapper.listByDeviceId(deviceId);
     }
 
     /**

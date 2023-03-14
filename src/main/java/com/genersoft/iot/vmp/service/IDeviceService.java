@@ -1,6 +1,7 @@
 package com.genersoft.iot.vmp.service;
 
 import com.genersoft.iot.vmp.gb28181.bean.Device;
+import com.genersoft.iot.vmp.gb28181.bean.DeviceAlgorithm;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceChannel;
 import com.genersoft.iot.vmp.gb28181.bean.SyncStatus;
 import com.genersoft.iot.vmp.vmanager.bean.BaseTree;
@@ -113,6 +114,9 @@ public interface IDeviceService {
      * @param device 设备信息
      */
     void updateDevice(Device device);
+    void updateAlgorithm(Device device);
+    void algorithmSetting(Device device);
+    List<DeviceAlgorithm> queryAlgorithm(String deviceId);
 
     /**
      * 树形查询接口
