@@ -50,7 +50,7 @@
             <span slot="footer">
           		<!-- 确定 -->
               <!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
-          		<el-button type="primary" @click="urlSubmit">确定</el-button>
+          		<el-button class="com-btn" type="primary" @click="urlSubmit">确定</el-button>
           	</span>
           </el-dialog>
         </el-main>

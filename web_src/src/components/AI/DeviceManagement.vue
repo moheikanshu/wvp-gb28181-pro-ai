@@ -53,7 +53,7 @@
 <!--      <el-table-column prop="createTime" label="创建时间"  width="140">-->
 <!--      </el-table-column>-->
 
-      <el-table-column label="操作" min-width="450" fixed="right">
+      <el-table-column label="操作" min-width="543" fixed="right">
         <template slot-scope="scope">
           <el-button type="text" size="medium" v-bind:disabled="scope.row.online==0" icon="el-icon-refresh" @click="refDevice(scope.row)"
                      @mouseover="getTooltipContent(scope.row.deviceId)">刷新
@@ -70,6 +70,12 @@
           <el-button size="medium" icon="el-icon-edit" type="text" @click="edit(scope.row)">编辑</el-button>
           <el-divider direction="vertical"></el-divider>
           <el-button size="medium" icon="el-icon-delete" type="text" @click="deleteDevice(scope.row)" style="color: #f56c6c">删除</el-button>
+          <el-divider direction="vertical"></el-divider>
+          <el-button size="medium" icon="el-icon-s-operation" type="text" @click="getAiList(scope.row)">
+            算法
+          </el-button>
+          <el-divider direction="vertical"></el-divider>
+          <el-switch v-model="scope.row.algorithm" :active-value="1" :inactive-value="0" @change="switchChange(scope.row)" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
         </template>
       </el-table-column>
     </el-table>
@@ -83,6 +89,18 @@
       layout="total, sizes, prev, pager, next"
       :total="total">
     </el-pagination>
+    <el-dialog title="列表" custom-class="com-dialog" :visible.sync="aiVisble" :close-on-click-modal="false" append-to-body width="534px" center>
+      <div class="tree-box" v-if="aiVisble">
+        <el-checkbox-group class="com-group" v-model="checkLiast">
+          <el-checkbox :label="item.id" v-for="(item, index) in aiList" :key="index">{{item.name}}</el-checkbox>
+        </el-checkbox-group>
+      </div>
+      <span slot="footer">
+    		<!-- 确定 -->
+        <!-- <a :href="focusMediaData.url">{{$t('download')}}</a> -->
+    		<el-button class="com-btn" type="primary" @click="saveAlgorithm">确定</el-button>
+    	</span>
+    </el-dialog>
     <deviceEdit ref="deviceEdit"></deviceEdit>
     <syncChannelProgress ref="syncChannelProgress"></syncChannelProgress>
   </div>
@@ -113,6 +131,10 @@ export default {
       count: 15,
       total: 0,
       getDeviceListLoading: false,
+      aiVisble: false,
+      checkLiast: [],
+      curRow: {},
+      aiList: [],
     };
   },
   computed: {
@@ -138,6 +160,71 @@ export default {
     clearTimeout(this.updateLooper);
   },
   methods: {
+    switchChange(row){
+      const { deviceId, algorithm } = row
+      this.$axios({
+        method: 'post',
+        url: `/api/device/query/switchAlgorithm/`,
+        data: {
+          deviceId,
+          algorithm,
+        }
+      }).then((res) => {
+        if (res.data.code === 0) {
+          this.$message.success(res.data.msg)
+        }else{
+          this.$message.error(res.data.msg)
+        }
+        this.initData()
+      }).catch((error) => {
+        console.error(error)
+      });
+    },
+    saveAlgorithm(){
+      this.$axios({
+        method: 'post',
+        url: `/api/device/query/algorithmSetting/`,
+        data: {
+          deviceId: this.curRow.deviceId,
+          algorithmIds: this.checkLiast
+        }
+      }).then((res) => {
+        if (res.data.code === 0) {
+          this.$message.success(res.data.msg)
+          this.initData()
+        }else{
+          this.$message.error(res.data.msg)
+        }
+        this.aiVisble = false
+      }).catch((error) => {
+        console.error(error)
+        this.aiVisble = false
+      });
+    },
+    getAiList(row) {
+      this.aiLoading = true
+      this.aiVisble = true
+      this.curRow = row
+      this.$axios({
+        method: 'get',
+        url: `/api/ai/device/all`,
+      }).then((res) => {
+        const {code, data, msg} = res.data
+        if (code === 0) {
+          this.aiList = data;
+          const list = row.algorithms.map(v => {
+            return v.algorithmId
+          })
+          this.checkLiast = list
+        } else {
+          this.$message.error(msg)
+        }
+        this.aiLoading = false;
+      }).catch((error) => {
+        console.error(error);
+        this.aiLoading = false;
+      });
+    },
     initData: function () {
       this.getDeviceList();
     },

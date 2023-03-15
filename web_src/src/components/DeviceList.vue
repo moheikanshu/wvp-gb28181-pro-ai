@@ -257,7 +257,7 @@ export default {
       this.curRow = row
       this.$axios({
         method: 'get',
-        url: `/api/ai/device/all?deviceId=${row.deviceId}`,
+        url: `/api/ai/device/all`,
       }).then((res) => {
         const {code, data, msg} = res.data
         if (code === 0) {
