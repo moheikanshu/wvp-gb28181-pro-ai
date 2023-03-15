@@ -120,6 +120,14 @@ public interface DeviceMapper {
             " </script>"})
     int update(Device device);
 
+    @Update(value = {" <script>" +
+            "UPDATE device " +
+            "SET updateTime='${updateTime}'" +
+            "<if test=\"algorithm != null\">, algorithm=${algorithm}</if>" +
+            "WHERE deviceId='${deviceId}'"+
+            " </script>"})
+    int updateAlgorithm(Device device);
+
     @Select("SELECT " +
             "deviceId, " +
             "coalesce(custom_name, name) as name, " +

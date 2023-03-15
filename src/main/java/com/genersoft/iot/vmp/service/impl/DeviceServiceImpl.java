@@ -344,7 +344,7 @@ public class DeviceServiceImpl implements IDeviceService {
 
     @Override
     public void updateAlgorithm(Device device) {
-        deviceMapper.update(device);
+        deviceMapper.updateAlgorithm(device);
     }
 
     @Override
@@ -361,7 +361,7 @@ public class DeviceServiceImpl implements IDeviceService {
             });
             deviceAlgorithmMapper.batchAdd(algorithms);
         }
-        deviceMapper.update(device);
+        deviceMapper.updateAlgorithm(device);
     }
 
     @Override
