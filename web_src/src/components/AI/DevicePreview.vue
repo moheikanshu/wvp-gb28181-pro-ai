@@ -264,7 +264,7 @@ export default {
       this.deviceLoading = true
       this.$axios({
         method: 'get',
-        url: `/api/ai/device/all`,
+        url: `/api/ai/device/all?deviceId=${this.curRow.deviceId}`,
       }).then( (res)=> {
         const { code, data, msg } = res.data
         if (code === 0) {

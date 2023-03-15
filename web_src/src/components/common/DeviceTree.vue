@@ -82,7 +82,6 @@ export default {
                 let nodeList = []
                 this.deviceList = [...data]
                 for (let i = 0; i < data.length; i++) {
-                  console.log(data[i].name)
                   let node = {
                     name: data[i].name || data[i].deviceId,
                     isLeaf: false,
@@ -107,7 +106,6 @@ export default {
           let channelArray = []
 
           this.deviceService.getTree(node.data.userData.deviceId, node.data.id, this.onlyCatalog, catalogData =>{
-            console.log(catalogData)
             channelArray = channelArray.concat(catalogData)
             this.channelDataHandler(channelArray, resolve)
           },(endCatalogData) => {
@@ -131,7 +129,6 @@ export default {
                 if (channelType === '215' || channelType === '216') {
                   type = 2;
                 }
-                console.log(type)
                 if (item.basicData.ptztype === 1 ) { // 1-球机;2-半球;3-固定枪机;4-遥控枪机
                   type = 4;
                 }else if (item.basicData.ptztype === 2) {

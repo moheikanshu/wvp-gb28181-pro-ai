@@ -251,12 +251,13 @@ export default {
       });
     },
     getAiList(row) {
+      console.log(111,row)
       this.aiLoading = true
       this.aiVisble = true
       this.curRow = row
       this.$axios({
         method: 'get',
-        url: `/api/ai/device/all`,
+        url: `/api/ai/device/all?deviceId=${row.deviceId}`,
       }).then((res) => {
         const {code, data, msg} = res.data
         if (code === 0) {
@@ -265,7 +266,6 @@ export default {
             return v.algorithmId
           })
           this.checkLiast = list
-          this.$refs.gdTree.setCheckedKeys(list)
         } else {
           this.$message.error(msg)
         }

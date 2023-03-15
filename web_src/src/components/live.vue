@@ -20,7 +20,6 @@
               <div v-for="i in spilt" :key="i" class="play-box"
                    :style="liveStyle" :class="{redborder:playerIdx == (i-1)}"
                    @click="playerIdx = (i-1)">
-                   <div style="position: absolute; left: 0; right: 0; word-break: break-all;">666{{videoUrl[i-1]}}</div>
                 <div v-if="!videoUrl[i-1]" style="color: #ffffff;font-size: 30px;font-weight: bold;">{{ i }}</div>
 <!--                <video class="video" id="video" controls autoplay v-else></video>-->
                 <video class="video" :id="`video${i}`" controls autoplay v-else></video>
@@ -209,6 +208,7 @@ export default {
     },
     //通知设备上传媒体流
     sendDevicePush: function (itemData) {
+      console.log(666,itemData)
       // if (itemData.status === 0) {
       //   this.$message.error('设备离线!');
       //   return
@@ -252,7 +252,7 @@ export default {
       this.deviceLoading = true
       this.$axios({
         method: 'get',
-        url: `/api/ai/device/all`,
+        url: `/api/ai/device/all?deviceId=${this.itemDatas.deviceId}`,
       }).then( (res)=> {
         const { code, data, msg } = res.data
         if (code === 0) {
@@ -510,10 +510,6 @@ export default {
 }
 .list-tree /deep/ .el-tree-node__label{
   font-size: 16px;
-}
-.tree-box{
-  max-height: 400px;
-  overflow: auto;
 }
 .flex {
   display: flex;
