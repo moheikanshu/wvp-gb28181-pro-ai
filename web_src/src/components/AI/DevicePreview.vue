@@ -21,9 +21,15 @@
                    :style="liveStyle" :class="{redborder:playerIdx == (i-1)}"
                    @click="playerIdx = (i-1)">
                 <div v-if="!videoUrl[i-1]" style="color: #ffffff;font-size: 30px;font-weight: bold;">{{ i }}</div>
-                <video class="video" :id="`video${i}`" controls autoplay v-else></video>
-                <!-- <video class="video" :src="videoUrl[i-1]" autoplay controls playsinline v-else></video> -->
-                <!-- <player ref="player" v-else :videoUrl="videoUrl[i-1]" fluent autoplay @screenshot="shot" @destroy="destroy"/> -->
+                <video class="video" :id="`video${i}`" controls autoplay @canplay="videoLoaded(i - 1)" v-else></video>
+                <div class="car-box" :class="`car${spilt}`" v-if="carQuantity[i - 1]">
+                  <div class="box-inline in-box"><i class="el-icon-bottom"></i><span>进</span></div>
+                  <div class="box-inline out-box"><i class="el-icon-top"></i><span>出</span></div>
+                  <div class="box-quantity">
+                    <p>进入车辆：{{carQuantity[i - 1].in}}</p>
+                    <p>出去车辆：{{carQuantity[i - 1].out}}</p>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="video-text ht100" v-if="queryData.length">
@@ -114,8 +120,11 @@ export default {
       personTimer: [],
       queryData: [],
       webRtcServer: [],
-      playIp: '417u0941d0.wicp.vip:8000',
+      playIp: process.env.NODE_ENV === 'development' ? '127.0.0.1:8002' : '417u0941d0.wicp.vip:8000',
       curRow: {},
+      showCar: [],
+      carQuantity:[],
+      carTimers: [],
     };
   },
   mounted() {
@@ -192,6 +201,31 @@ export default {
     }
   },
   methods: {
+    videoLoaded(i){
+      if(this.showCar[i]){
+        let carTimer = setInterval(() => {
+          this.getCArQuantity(i)
+        }, 2000)
+        this.$set(this.carTimers, i, carTimer)
+      }
+    },
+    getCArQuantity(i){
+      let that = this;
+      const { ip, port } = this.checkedNode
+      that.listVisble = false
+      that.$axios({
+        method: 'get',
+        url: `url`,
+      }).then(function (res) {
+        const { code, msg, data} = res.data
+        if(code == 200 || code == 0){
+          that.$set(that.carQuantity, i, data)
+        }
+      }).catch(function (e) {
+        console.log('请求失败',e)
+      }).finally(() => {
+      });
+    },
     idChange(id){
       const data = this.deviceList.find( v => v.id == id)
       if(data){
@@ -249,13 +283,14 @@ export default {
             that.getDeviceList()
           }else{
             // 算法关闭
-            let videoUrl = res.data.data.rtsp
+            let videoUrl = process.env.NODE_ENV === 'development' ? 'rtsp://192.168.2.14/media/flv/video1' : res.data.data.rtsp
             that.setPlayUrl(videoUrl, idxTmp)
           }
         } else {
           that.$message.error(res.data.msg);
         }
       }).catch(function (e) {
+
       }).finally(() => {
         that.loading = false
       });
@@ -290,7 +325,7 @@ export default {
     },
     getUser(rtspUrl){
       let that = this;
-      const { ip, port } = this.checkedNode
+      const { ip, port, name } = this.checkedNode
       this.listVisble = false
       this.$axios({
         method: 'get',
@@ -301,6 +336,8 @@ export default {
         const { code, msg, data} = res.data
         if(code == 200 || code == 0){
           let url = data
+          const temp = name == '车流'
+          that.$set(that.showCar, that.playerIdx, temp)
           url = url.replace(/localhost/, ip)
           console.log('替换后地址', url)
           that.setPlayUrl(url, that.playerIdx)
@@ -352,6 +389,7 @@ export default {
       this.$set(this.videoUrl, idx, url)
       this.$nextTick(() => {
         let item = new WebRtcStreamer(`video${idx + 1}`, `${location.protocol}//${this.playIp}`)
+        console.log(999,item)
         this.$set(this.webRtcServer, idx, item)
         this.webRtcServer[idx].connect(url)
       })
@@ -410,6 +448,71 @@ export default {
 };
 </script>
 <style>
+.car-box{
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  top: 0;
+  height: 130px;
+  border-bottom: 4px solid #fdea34;
+}
+.box-inline{
+  position: absolute;
+  color: #fff;
+  font-weight: bold;
+}
+.box-inline i{
+  font-size: 90px;
+  text-shadow: 3px 3px 7px rgba(0,0,0,.3);
+}
+.box-inline span{
+  font-size: 30px;
+  display: inline-block;
+  vertical-align: top;
+  text-shadow: 3px 3px 7px rgba(0,0,0,.3);
+}
+.car4{
+  height: 70px;
+}
+.car4 .box-inline,.car4 .box-quantity{
+  transform: scale(.5);
+}
+.car9{
+  height: 50px;
+}
+.car9 .box-inline,.car9 .box-quantity{
+  transform: scale(.4);
+}
+.car9 .in-box{
+  left: 35%;
+}
+.car9 .out-box{
+  right: 20%;
+}
+.box-quantity{
+  position: absolute;
+  right: 20px;
+  bottom: 10px;
+  font-size: 30px;
+  color: #fff;
+  font-weight: bold;
+  text-align: left;
+  text-shadow: 3px 3px 7px rgba(0,0,0,.3);
+  transform-origin: right bottom;
+}
+.box-quantity p{
+  margin: 0;
+}
+.in-box{
+  left: 40%;
+  bottom: 0;
+  transform-origin: bottom;
+}
+.out-box{
+  right: 30%;
+  bottom: -100px;
+  transform-origin: top;
+}
 .el-main{
   padding-right: 3px;
   padding-bottom: 0;
@@ -433,6 +536,7 @@ export default {
 }
 
 .play-box {
+  position: relative;
   background-color: #000000;
   border: 2px solid #505050;
   display: flex;
