@@ -292,20 +292,9 @@ export default {
       let that = this;
       const { ip, port } = this.checkedNode
       this.listVisble = false
-      // let params = { name: [1,rtspUrl] }
-      // params = JSON.stringify(params)
-      // console.log(333,params)
       this.$axios({
         method: 'get',
-        // url: `http://192.168.200.8:1936/users?name=[1,${rtspUrl}]`,
-        // url: `${location.protocol}//${ip}:${port}/users`,
         url: `${location.protocol}//${ip}:${port}/push?url=${rtspUrl}`,
-        // data: {
-        //   name: [1,rtspUrl]
-        // },
-        // headers: {
-        //   'Content-Type': 'application/json'
-        // },
       }).then(function (res) {
         console.log('请求成功',res)
         // const data = JSON.parse(res.data)
@@ -316,16 +305,12 @@ export default {
           console.log('替换后地址', url)
           that.setPlayUrl(url, that.playerIdx)
           // let personTimer = setInterval(() => {
-          //   that.getPersons(ip, port)
-          // }, 2000)
-          let personTimer = setInterval(() => {
-            that.setPerson(ip, port)
-          }, 5000)
-          that.$set(that.personTimer, that.playerIdx, personTimer)
+          //   that.setPerson(ip, port)
+          // }, 5000)
+          // that.$set(that.personTimer, that.playerIdx, personTimer)
         }
       }).catch(function (e) {
         console.log('请求失败',e)
-        // that.setPlayUrl('rtsp://192.168.2.14/media/flv/video1', that.playerIdx)
         that.loading = false
       }).finally(() => {
         that.loading = false
