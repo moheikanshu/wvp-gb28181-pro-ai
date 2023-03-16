@@ -5,8 +5,12 @@
         <div class="container-login100">
           <div class="wrap-login100">
 
+          <el-form label-width="auto">
+          	<el-form-item label="用户名:"><input :class="'input100 ' + (username==''?'':'has-val')" type="text" v-model="username" name="username"></el-form-item>
+          	<el-form-item label="密码:"><input :class="'input100 ' + (password==''?'':'has-val')" :type="(!showPassword?'password':'text')" v-model="password" name="password"></el-form-item>
+          </el-form>
 
-            <div class="wrap-input100 validate-input" data-validate="Valid email is: a@b.c">
+            <!-- <div class="wrap-input100 validate-input" data-validate="Valid email is: a@b.c">
               <input :class="'input100 ' + (username==''?'':'has-val')" type="text" v-model="username" name="username">
               <span class="focus-input100" data-placeholder="用户名"></span>
             </div>
@@ -18,7 +22,7 @@
               <input :class="'input100 ' + (password==''?'':'has-val')" :type="(!showPassword?'password':'text')"
                      v-model="password" name="password">
               <span class="focus-input100" data-placeholder="密码"></span>
-            </div>
+            </div> -->
 
             <div class="container-login100-form-btn">
               <div class="wrap-login100-form-btn" :class="{'login-loading': isLoging}" v-loading="isLoging"
@@ -137,6 +141,17 @@ export default {
   position: absolute;
   background-size:100% 100%;
 }
+.wrap-login100{
+  margin-left: 550px;
+  border-radius: 0;
+}
+.el-form .el-form-item{
+  border: 1px solid #ccc;
+  padding-left: 20px;
+  overflow: hidden;
+}
+.el-form .el-form-item:last-child{
+  margin-bottom: 0;
+}
 
 </style>
-

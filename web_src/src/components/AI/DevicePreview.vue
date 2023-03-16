@@ -142,6 +142,7 @@ export default {
     // }, 5000)
     // this.$set(this.personTimer, this.playerIdx, personTimer)
     this.checkPlayByParam()
+    this.getCArQuantity(1)
   },
 
   computed: {
@@ -215,11 +216,11 @@ export default {
       that.listVisble = false
       that.$axios({
         method: 'get',
-        url: `url`,
+        url: `http://417u0941d0.wicp.vip:3001/car.json`,
       }).then(function (res) {
-        const { code, msg, data} = res.data
-        if(code == 200 || code == 0){
-          that.$set(that.carQuantity, i, data)
+        const {data} = res.data
+        if(data && data.car){
+          that.$set(that.carQuantity, i, data.car)
         }
       }).catch(function (e) {
         console.log('请求失败',e)
@@ -389,7 +390,6 @@ export default {
       this.$set(this.videoUrl, idx, url)
       this.$nextTick(() => {
         let item = new WebRtcStreamer(`video${idx + 1}`, `${location.protocol}//${this.playIp}`)
-        console.log(999,item)
         this.$set(this.webRtcServer, idx, item)
         this.webRtcServer[idx].connect(url)
       })
