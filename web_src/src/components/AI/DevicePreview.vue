@@ -142,7 +142,6 @@ export default {
     // }, 5000)
     // this.$set(this.personTimer, this.playerIdx, personTimer)
     this.checkPlayByParam()
-    this.getCArQuantity(1)
   },
 
   computed: {
