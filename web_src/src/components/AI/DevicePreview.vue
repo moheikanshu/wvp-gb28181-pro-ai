@@ -26,8 +26,8 @@
                   <div class="box-inline in-box"><i class="el-icon-bottom"></i><span>进</span></div>
                   <div class="box-inline out-box"><i class="el-icon-top"></i><span>出</span></div>
                   <div class="box-quantity">
-                    <p>进入车辆：{{carQuantity[i - 1].in}}</p>
-                    <p>出去车辆：{{carQuantity[i - 1].out}}</p>
+                    <p>进入车辆：0</p>
+                    <p>出去车辆：0</p>
                   </div>
                 </div>
               </div>
@@ -203,6 +203,10 @@ export default {
   methods: {
     videoLoaded(i){
       if(this.showCar[i]){
+        setTimeout(() => {
+          this.getCArQuantity(i)
+        }, 1000)
+        return false
         let carTimer = setInterval(() => {
           this.getCArQuantity(i)
         }, 2000)
@@ -210,6 +214,8 @@ export default {
       }
     },
     getCArQuantity(i){
+      this.$set(this.carQuantity, i, 1)
+      return false
       let that = this;
       const { ip, port } = this.checkedNode
       that.listVisble = false
