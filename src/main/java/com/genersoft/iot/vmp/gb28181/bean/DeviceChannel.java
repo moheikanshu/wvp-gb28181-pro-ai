@@ -246,6 +246,12 @@ public class DeviceChannel {
 	@Schema(description = "GPS的更新时间")
 	private String gpsTime;
 
+	/**
+	 * 国标设备最新推流地址
+	 */
+	@Schema(description = "国标设备最新推流地址")
+	private String gbPushStreamsAddr;
+
 	public int getId() {
 		return id;
 	}
@@ -573,5 +579,13 @@ public class DeviceChannel {
 
 	public void setGpsTime(String gpsTime) {
 		this.gpsTime = gpsTime;
+	}
+
+	public String getGbPushStreamsAddr() {
+		return gbPushStreamsAddr;
+	}
+
+	public void setGbPushStreamsAddr(String gbPushStreamsAddr) {
+		this.gbPushStreamsAddr = gbPushStreamsAddr;
 	}
 }

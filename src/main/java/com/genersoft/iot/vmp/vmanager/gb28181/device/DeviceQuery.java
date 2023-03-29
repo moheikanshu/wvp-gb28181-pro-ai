@@ -20,6 +20,7 @@ import com.genersoft.iot.vmp.storager.IVideoManagerStorage;
 import com.genersoft.iot.vmp.vmanager.bean.BaseTree;
 import com.genersoft.iot.vmp.vmanager.bean.ErrorCode;
 import com.genersoft.iot.vmp.vmanager.bean.WVPResult;
+import com.genersoft.iot.vmp.vmanager.gb28181.vo.DeviceChannelVO;
 import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -305,7 +306,6 @@ public class DeviceQuery {
 	@Parameter(name = "device", description = "设备", required = true)
 	@PostMapping("/device/update/")
 	public void updateDevice(Device device){
-
 		if (device != null && device.getDeviceId() != null) {
 			deviceService.updateCustomDevice(device);
 		}
@@ -314,9 +314,16 @@ public class DeviceQuery {
 	@Operation(summary = "算法开关")
 	@PostMapping("/switchAlgorithm/")
 	public void switchAlgorithm(@RequestBody Device device){
-
 		if (device != null && device.getDeviceId() != null) {
 			deviceService.updateAlgorithm(device);
+		}
+	}
+
+	@Operation(summary = "更新设备推流地址")
+	@PostMapping("/setGbPushStreamsAddr")
+	public void setGbPushStreamsAddr(List<DeviceChannelVO> deviceChannelVOS){
+		if(deviceChannelVOS != null && deviceChannelVOS.size() != 0){
+			deviceChannelService.setGbPushStreamsAddr(deviceChannelVOS);
 		}
 	}
 

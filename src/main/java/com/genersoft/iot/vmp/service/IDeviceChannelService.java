@@ -3,6 +3,7 @@ package com.genersoft.iot.vmp.service;
 import com.genersoft.iot.vmp.gb28181.bean.Device;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceChannel;
 import com.genersoft.iot.vmp.vmanager.bean.ResourceBaceInfo;
+import com.genersoft.iot.vmp.vmanager.gb28181.vo.DeviceChannelVO;
 
 import java.util.List;
 
@@ -38,4 +39,6 @@ public interface IDeviceChannelService {
      * @return
      */
     ResourceBaceInfo getOverview();
+
+    void setGbPushStreamsAddr(List<DeviceChannelVO> deviceChannelVOS);
 }

@@ -5,6 +5,7 @@ import com.genersoft.iot.vmp.gb28181.bean.DeviceChannel;
 import com.genersoft.iot.vmp.gb28181.bean.DeviceChannelInPlatform;
 import com.genersoft.iot.vmp.vmanager.bean.ResourceBaceInfo;
 import com.genersoft.iot.vmp.vmanager.gb28181.platform.bean.ChannelReduce;
+import com.genersoft.iot.vmp.vmanager.gb28181.vo.DeviceChannelVO;
 import org.apache.ibatis.annotations.*;
 import org.springframework.stereotype.Repository;
 
@@ -352,4 +353,7 @@ public interface DeviceChannelMapper {
 
     @Select("select count(1) as total, sum(status) as online from device_channel")
     ResourceBaceInfo getOverview();
+
+    @Update("update device_channel set gb_push_streams_addr = #{gbPushStreamsAddr} where channelId = #{channelId}")
+    void setGbPushStreamsAddr(DeviceChannelVO deviceChannelVOS);
 }
