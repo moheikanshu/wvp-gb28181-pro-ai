@@ -663,4 +663,14 @@ public class DeviceServiceImpl implements IDeviceService {
     public ResourceBaceInfo getOverview() {
         return deviceMapper.getOverview();
     }
+
+
+    @Override
+    public int setAiDeviceUrl() {
+        int i = deviceMapper.setAiDeviceUrlIsNull();
+        return deviceMapper.setAiDeviceUrl();
+    }
+
+
+
 }

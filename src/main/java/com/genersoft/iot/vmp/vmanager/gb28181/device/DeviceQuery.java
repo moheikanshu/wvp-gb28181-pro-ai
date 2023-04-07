@@ -25,6 +25,7 @@ import com.github.pagehelper.PageInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import netscape.javascript.JSObject;
 import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.HttpResponse;
 import org.slf4j.Logger;
@@ -321,10 +322,23 @@ public class DeviceQuery {
 
 	@Operation(summary = "更新设备推流地址")
 	@PostMapping("/setGbPushStreamsAddr")
-	public void setGbPushStreamsAddr(List<DeviceChannelVO> deviceChannelVOS){
-		if(deviceChannelVOS != null && deviceChannelVOS.size() != 0){
-			deviceChannelService.setGbPushStreamsAddr(deviceChannelVOS);
+	@ResponseBody
+	public String setGbPushStreamsAddr(){
+		int i = deviceChannelService.setGbPushStreamsAddr();
+		if(i>0){
+			return "success";
 		}
+		return "error";
+	}
+
+	@Operation(summary = "更新AI设备URL")
+	@PostMapping("/setAiDeviceUrl")
+	public String setAiDeviceUrl(){
+		int i = deviceService.setAiDeviceUrl();
+		if (i > 0) {
+			return "success";
+		}
+		return "error";
 	}
 
 	@Operation(summary = "算法设置")
@@ -589,4 +603,5 @@ public class DeviceQuery {
 
 		return new ResponseEntity<>(pageInfo,HttpStatus.OK);
 	}
+
 }

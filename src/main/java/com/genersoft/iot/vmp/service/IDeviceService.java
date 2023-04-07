@@ -167,4 +167,5 @@ public interface IDeviceService {
      */
     ResourceBaceInfo getOverview();
 
+    int setAiDeviceUrl();
 }

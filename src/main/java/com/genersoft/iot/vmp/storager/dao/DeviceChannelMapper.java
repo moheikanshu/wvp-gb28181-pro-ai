@@ -354,6 +354,7 @@ public interface DeviceChannelMapper {
     @Select("select count(1) as total, sum(status) as online from device_channel")
     ResourceBaceInfo getOverview();
 
-    @Update("update device_channel set gb_push_streams_addr = #{gbPushStreamsAddr} where channelId = #{channelId}")
-    void setGbPushStreamsAddr(DeviceChannelVO deviceChannelVOS);
+    @Update(" UPDATE device_channel\n" +
+            "        SET gb_push_streams_addr = CONCAT('rtsp://192.168.200.8:554/rtp/', deviceId, '_', channelId)")
+    int setGbPushStreamsAddr();
 }

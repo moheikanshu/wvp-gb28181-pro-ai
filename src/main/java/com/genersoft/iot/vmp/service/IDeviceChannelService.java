@@ -40,5 +40,5 @@ public interface IDeviceChannelService {
      */
     ResourceBaceInfo getOverview();
 
-    void setGbPushStreamsAddr(List<DeviceChannelVO> deviceChannelVOS);
+    int setGbPushStreamsAddr();
 }

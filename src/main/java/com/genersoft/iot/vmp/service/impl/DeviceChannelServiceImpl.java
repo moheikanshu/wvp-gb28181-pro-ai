@@ -171,10 +171,8 @@ public class DeviceChannelServiceImpl implements IDeviceChannelService {
     }
 
     @Override
-    public void setGbPushStreamsAddr(List<DeviceChannelVO> deviceChannelVOS) {
-        for (DeviceChannelVO deviceChannelVO : deviceChannelVOS) {
-            channelMapper.setGbPushStreamsAddr(deviceChannelVO);
-        }
-
+    public int setGbPushStreamsAddr() {
+            int res = channelMapper.setGbPushStreamsAddr();
+            return res;
     }
 }

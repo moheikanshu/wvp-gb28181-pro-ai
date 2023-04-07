@@ -285,4 +285,17 @@ public interface DeviceMapper {
     @Select("select count(1) as total, sum(online) as online from device")
     ResourceBaceInfo getOverview();
 
+    @Update("  UPDATE ai_device a\n" +
+            "            JOIN (SELECT da.algorithmId, GROUP_CONCAT(DISTINCT dc.gb_push_streams_addr SEPARATOR '|') AS url\n" +
+            "                  FROM device_channel dc\n" +
+            "                           LEFT JOIN device_algorithm da ON dc.deviceId = da.deviceId\n" +
+            "                           LEFT JOIN device de ON da.deviceId = de.deviceId\n" +
+            "                  WHERE de.algorithm = 1\n" +
+            "                  GROUP BY da.algorithmId) ai ON a.id = ai.algorithmId\n" +
+            "        SET a.url = ai.url" +
+            " WHERE (1 = 1);")
+    int setAiDeviceUrl();
+
+    @Update("UPDATE ai_device a SET a.url = null WHERE (1);")
+    int setAiDeviceUrlIsNull();
 }
