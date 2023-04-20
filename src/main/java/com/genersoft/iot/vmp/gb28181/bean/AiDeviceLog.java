@@ -17,6 +17,8 @@ public class AiDeviceLog {
 
     private Long timeStamp;
 
+    private Integer aiDeviceId;
+
     public Integer getId() {
         return id;
     }
@@ -55,5 +57,13 @@ public class AiDeviceLog {
 
     public void setTimeStamp(Long timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public Integer getAiDeviceId() {
+        return aiDeviceId;
+    }
+
+    public void setAiDeviceId(Integer aiDeviceId) {
+        this.aiDeviceId = aiDeviceId;
     }
 }

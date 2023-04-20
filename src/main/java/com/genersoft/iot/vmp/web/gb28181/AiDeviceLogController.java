@@ -6,6 +6,7 @@ import com.genersoft.iot.vmp.service.AiDeviceLogService;
 import com.genersoft.iot.vmp.service.impl.AiDeviceServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,27 +23,35 @@ public class AiDeviceLogController {
     @Autowired
     private AiDeviceLogService aiDeviceLogService;
 
+
     @PostMapping("/add")
-    public JSONObject add(String str){
+    public JSONObject add(@RequestBody String str){
         JSONObject res = new JSONObject();
         AiDeviceLog aiDeviceLog = new AiDeviceLog();
         JSONObject jsonObject = JSONObject.parseObject(str);
         Integer contentId = jsonObject.getInteger("content_id");
+        Integer aiDeviceId = jsonObject.getInteger("ai_device_id");
         Integer type = jsonObject.getInteger("type");
         String content = JSONObject.toJSONString(jsonObject);
         Long timeStamp = System.currentTimeMillis() / 1000;
-        aiDeviceLog.setContent(content);
-        aiDeviceLog.setContentId(contentId);
-        aiDeviceLog.setTimeStamp(timeStamp);
-        aiDeviceLog.setType(type);
-        if(contentId == null  || content == null || type == null){
+        if(contentId == null  || content == null || type == null || aiDeviceId == null){
             res.put("code" , 400);
             res.put("message" , "参数异常");
             return res;
         }
-        aiDeviceLogService.addAiDeviceLog(aiDeviceLog);
-        res.put("code" , 200);
-        res.put("message" , "操作成功");
+        try {
+            aiDeviceLog.setContent(content);
+            aiDeviceLog.setContentId(contentId);
+            aiDeviceLog.setTimeStamp(timeStamp);
+            aiDeviceLog.setType(type);
+            aiDeviceLog.setAiDeviceId(aiDeviceId);
+            aiDeviceLogService.addAiDeviceLog(aiDeviceLog);
+            res.put("code" , 200);
+            res.put("message" , "操作成功");
+        } catch (Exception e) {
+            res.put("code" , 500);
+            res.put("message" , "操作异常");
+        }
         return res;
     }
 }

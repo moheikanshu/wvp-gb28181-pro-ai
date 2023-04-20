@@ -14,6 +14,6 @@ import org.apache.ibatis.annotations.Mapper;
 @Mapper
 public interface AiDeviceLogMapper {
 
-    @Insert("insert into ai_device_log(content , type , contentId , time_stamp) values(#{content} , #{type} , #{contentId} , #{timeStamp})")
+    @Insert("insert into ai_device_log(content , ai_device_id , content_id , time_stamp , type) values(#{content} , #{aiDeviceId} , #{contentId} , #{timeStamp} , #{type})")
     int addAiDeviceLog(AiDeviceLog aiDeviceLog);
 }
